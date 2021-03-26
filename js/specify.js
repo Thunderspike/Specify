@@ -2,39 +2,6 @@ $(function () {
     specify.init();
 });
 
-/**
-   * 1. validate data, 
-  *       valid array, if not issue a warning and disable table or something
-   *      trim if incorrect matrix dimennsions or too large, otherwise throw an error and 
-   * 2. validate config:
-   *  validate proper JSON by try { JSON.parse(obj) } catch(e) { }
-   *  remove properties at top level: !globalFeatures : { globalFeatures, inputs }
-   *      inside of globalFeatures, acceptable are : {
-              editable: boolean, sortable: boolean, markers: {
-                  enable: [boolean], markerColors: [/^#[0-9A-F]{6}$/]
-              }
-          },
-          inputs: {
-              columns: {
-                  [`c${tableData[0].length}`]: {
-                      valueType: "number" || "email",
-                      restrictedToValues: [] <- must have length,
-                      min: > 0, <= 255 
-                      max: > 0 && <= 255 && >= min
-                  } || "number" || "email",
-  
-              },
-              cells: {
-                  valueType: "number" || "email",
-                      restrictedToValues: [] <- must have length,
-                      min: > 0, <= 255 
-                      max: > 0 && <= 255 && >= min
-                  } || "number" || "email"
-              }
-          }
-   * 3. 
-   */
-
 const specify = new (function () {
     const obj = this;
 
@@ -68,14 +35,14 @@ const specify = new (function () {
         ],
         [
             "Merlin2C",
-            "expended",
+            "destroyed",
             "2008-09-28T23:15:00.000Z",
             1222643700,
             "Initially scheduled for 23–25 Sep, carried dummy payload...",
         ],
         [
             "Merlin3C",
-            "expended",
+            "destroyed",
             "2009-07-13T03:35:00.000Z",
             1247456100,
             "null",
@@ -89,65 +56,10 @@ const specify = new (function () {
         ],
         [
             "B0004",
-            "expended",
+            "destroyed",
             "2010-12-08T15:43:00.000Z",
             1291822980,
             "First flight of Dragon",
-        ],
-        ["B0005", "expended", "2012-05-22T07:44:00.000Z", 1337672640, "null"],
-        [
-            "B0006",
-            "expended",
-            "2012-10-08T00:35:00.000Z",
-            1349656500,
-            "Suffered engine out at T+1:19 but primary mission successful",
-        ],
-        ["B0007", "expended", "2013-03-01T19:10:00.000Z", 1362165000, "null"],
-        [
-            "B1003",
-            "destroyed",
-            "2013-09-29T16:00:00.000Z",
-            1380470400,
-            "First flight of Falcon 9 v1.1 upgrade, first Spacex flight from Vandenberg",
-        ],
-        ["B1004", "expended", "2013-12-03T22:41:00.000Z", 1386110460, "null"],
-        ["B1005", "expended", "2014-01-06T18:06:00.000Z", 1389031560, "null"],
-        [
-            "B1006",
-            "destroyed",
-            "2014-04-18T19:25:00.000Z",
-            1397849100,
-            "Broke up after sucessful water landing",
-        ],
-        [
-            "B1007",
-            "destroyed",
-            "2014-07-14T15:15:00.000Z",
-            1405350900,
-            "Broke up after sucessful water landing",
-        ],
-        ["B1008", "expended", "2014-08-05T08:00:00.000Z", 1407225600, "null"],
-        ["B1011", "expended", "2014-09-07T05:00:00.000Z", 1410066000, "null"],
-        [
-            "B1010",
-            "expended",
-            "2014-09-21T05:52:00.000Z",
-            1411278720,
-            "Broke up after sucessful water landing",
-        ],
-        [
-            "B1012",
-            "destroyed",
-            "2015-01-10T09:47:00.000Z",
-            1420883220,
-            "Destroyed on impact with droneship, grid fin hydraulic fluid depleted",
-        ],
-        [
-            "B1013",
-            "destroyed",
-            "2015-02-11T23:03:00.000Z",
-            1423695780,
-            "Broke up after sucessful water landing",
         ],
     ];
 
@@ -167,7 +79,7 @@ const specify = new (function () {
     };
 
     this.defaultConfigEditorData = {
-        editable: false,
+        editable: true,
         sortable: true,
         markers: true,
         // columns: {
@@ -182,17 +94,12 @@ const specify = new (function () {
         //     },
         // },
         cells: {
-            r0c1: {
-                editable: true,
-            },
             r0c2: {
-                editable: true,
                 type: "number",
                 min: 17,
                 max: 19,
             },
             r3c3: {
-                editable: true,
                 type: "number",
                 min: 17,
                 max: 19,
@@ -207,7 +114,8 @@ const specify = new (function () {
         defaultMarkerColors: ["#1e87f0", "#222", "#f8f8f8"],
         minInputLength: 0,
         maxInputLength: 255,
-        maxEnumValues: 10,
+        determineEnumOnSimilarValues: 3,
+        maxEnumValues: 3,
         emailRegex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         colorRegex: /^#([0-9A-F]{3}){1,2}$/i,
         allowedKeys: {
@@ -355,6 +263,7 @@ const specify = new (function () {
         configEditor.fullState = {};
         configEditor.validInputData = {};
         configEditor.errorO = {};
+        configEditor.typeSemblance = [];
         const { numRows, numCols } = { ...obj.inputEditor.dimensions };
 
         function dataTableInvalidNotification(
@@ -455,8 +364,9 @@ const specify = new (function () {
                                 "global.invalidValues.markers",
                                 "array0"
                             );
-                            editorVal.markers =
-                                configEditor.defaultMarkerColors;
+                            editorVal.markers = [
+                                ...configEditor.defaultMarkerColors,
+                            ];
                         } else if (
                             markers.length > configEditor.maxEnumValues
                         ) {
@@ -496,7 +406,7 @@ const specify = new (function () {
         const cells = editorVal.cells;
 
         if (cells && trueTypeOf(cells) != "object") {
-            const message = `cells must be an object`;
+            const message = `'cells' must be an object type`;
             configEditor.isValid = false;
             validatorElem.addClass("error");
             return createNotification(message);
@@ -542,7 +452,12 @@ const specify = new (function () {
                         putAtObjectPath(
                             configEditor.errorO,
                             `cells.validCellIdentifiers.${cell}.invalidKeyIdentifiers`,
-                            [{ [valueKey]: cells[cell][valueKey] }]
+                            [
+                                {
+                                    [valueKey]: cells[cell][valueKey],
+                                    deletedProp: true,
+                                },
+                            ]
                         );
                         delete cells[cell][valueKey];
                     }
@@ -556,11 +471,35 @@ const specify = new (function () {
                 if (cellValueKeys.includes("editable")) {
                     if (typeof cells[cell].editable != "boolean") {
                         //  removed property if not explicitly boolean
+                        putAtObjectPath(
+                            configEditor.errorO,
+                            `cells.validKeyIdentifiers.${cell}.invalidValue`,
+                            [
+                                {
+                                    editable: cells[cell].editable,
+                                    deletedProp: true,
+                                },
+                            ]
+                        );
                         delete cells[cell].editable;
                     } else {
-                        if (
-                            (editorVal.editable && cells[cell].editable) ||
-                            (!editorVal.editable && !cells[cell].editable)
+                        if (editorVal.editable && cells[cell].editable) {
+                            // redundant
+                            putAtObjectPath(
+                                configEditor.errorO,
+                                `cells.validCellIdentifiers.${cell}.invalidValues`,
+                                {
+                                    redundantEditabilityDeclaration: {
+                                        globalEditability: editorVal.editable,
+                                        cellProps: { ...cells[cell] },
+                                        deletedProp: true,
+                                    },
+                                }
+                            );
+                            delete cells[cell].editable;
+                        } else if (
+                            !editorVal.editable &&
+                            !cells[cell].editable
                         ) {
                             // redundant
                             putAtObjectPath(
@@ -570,10 +509,11 @@ const specify = new (function () {
                                     redundantEditabilityDeclaration: {
                                         globalEditability: editorVal.editable,
                                         cellProps: { ...cells[cell] },
+                                        deletedCell: true,
                                     },
                                 }
                             );
-                            delete cells[cell].editable;
+                            delete cells[cell];
                         } else if (!cells[cell].editable) {
                             // removed other proprties when cell not editable
                             putAtObjectPath(
@@ -595,34 +535,121 @@ const specify = new (function () {
                 let cellValueKeys = Object.keys(cells[cell]);
 
                 if (cellValueKeys.includes("type")) {
-                    const type = cells[cell].type;
+                    let type = cells[cell].type;
                     const minVal = cells[cell].min;
-                    const maxVal = cells[cell].min;
-                    let numMin, numMax;
+                    const maxVal = cells[cell].max;
 
-                    if (!allowedKeys.type.includes(type)) {
+                    // check for enums here
+                    if (Array.isArray(type)) {
+                        if (!type.length) {
+                            putAtObjectPath(
+                                configEditor.errorO,
+                                `cells.validCellIdentifiers.${cell}.invalidEnumLength`,
+                                [
+                                    {
+                                        type: cells[cell].type,
+                                        deletedProp: true,
+                                    },
+                                ]
+                            );
+                            delete cells[cell].type;
+                        }
+                        if (type.length > configEditor.maxEnumValues) {
+                            putAtObjectPath(
+                                configEditor.errorO,
+                                `cells.validCellIdentifiers.${cell}.invalidEnumLength`,
+                                [
+                                    {
+                                        type: cells[cell].type,
+                                        trimmed: true,
+                                    },
+                                ]
+                            );
+
+                            type.length = configEditor.maxEnumValues;
+                        }
+                        cells[cell].type = type.filter((enumVal) => {
+                            if (
+                                !(
+                                    typeof enumVal == "boolean" ||
+                                    typeof enumVal == "string" ||
+                                    typeof enumVal == "number"
+                                )
+                            ) {
+                                putAtObjectPath(
+                                    configEditor.errorO,
+                                    `cells.validCellIdentifiers.${cell}.invalidEnumVal`,
+                                    [
+                                        {
+                                            enumVal: enumVal.toString(),
+                                            deleted: true,
+                                        },
+                                    ]
+                                );
+                                return false;
+                            }
+                            return true;
+                        });
+
+                        if (!cells[cell].type.length) {
+                            putAtObjectPath(
+                                configEditor.errorO,
+                                `cells.validCellIdentifiers.${cell}.enum`,
+                                {
+                                    edgeCase: "emptyAfterTrim",
+                                }
+                            );
+                            delete cells[cell].type;
+                        } else {
+                            if (
+                                (minVal && !isNaN(minVal)) ||
+                                (maxVal && !isNaN(maxVal))
+                            ) {
+                                putAtObjectPath(
+                                    configEditor.errorO,
+                                    `cells.validCellIdentifiers.${cell}.redundantVals`,
+                                    {
+                                        invalidKeys: ["min", "max"].filter(
+                                            (el) => {
+                                                if (el == "min")
+                                                    return (
+                                                        minVal && !isNaN(minVal)
+                                                    );
+                                                else
+                                                    return (
+                                                        maxVal && !isNaN(maxVal)
+                                                    );
+                                            }
+                                        ),
+                                        deleted: true,
+                                    }
+                                );
+                                delete cells[cell].min;
+                                delete cells[cell].max;
+                            }
+                        }
+                    } else if (!allowedKeys.type.includes(type)) {
                         // non existant type
                         recordError(
                             configEditor.errorO,
                             `cells.validCellIdentifiers.${cell}.invalidValues`,
                             {
                                 nonExistantType: type,
+                                deletedProp: true,
                             }
                         );
                         delete cells[cell].type;
                     }
 
-                    if (
-                        isNaN(minVal) &&
-                        !isNaN(minVal) &&
-                        (minVal < configEditor.minInputLength ||
-                            minVal > configEditor.maxInputLength)
-                    ) {
+                    let numMin, numMax;
+
+                    if (minVal != undefined && isNaN(minVal)) {
                         putAtObjectPath(
                             configEditor.errorO,
                             `cells.validCellIdentifiers.${cell}.invalidValues`,
                             {
                                 invalidMinVal: minVal,
+                                deletedProp: true,
                             }
                         );
                         delete cells[cell].min;
@@ -630,17 +657,13 @@ const specify = new (function () {
                         numMin = minVal;
                     }
 
-                    if (
-                        isNaN(maxVal) ||
-                        (!isNaN(maxVal) &&
-                            (maxVal < configEditor.minInputLength ||
-                                maxVal > configEditor.maxInputLength))
-                    ) {
+                    if (maxVal != undefined && isNaN(maxVal)) {
                         putAtObjectPath(
                             configEditor.errorO,
                             `cells.validCellIdentifiers.${cell}.invalidValues`,
                             {
                                 invalidMaxVal: maxVal,
+                                deletedProp: true,
                             }
                         );
                         delete cells[cell].max;
@@ -652,35 +675,303 @@ const specify = new (function () {
                         if (numMin > numMax) {
                             cells[cell].min = Math.min(numMin, numMax);
                             cells[cell].max = Math.max(numMin, numMax);
+                            putAtObjectPath(
+                                configEditor.errorO,
+                                `cells.validCellIdentifiers.${cell}.swappedMinMax`,
+                                {
+                                    newMin: cells[cell].min,
+                                    newMax: cells[cell].max,
+                                }
+                            );
                         }
                     }
                 }
             });
 
-        if (JSON.stringify(configEditor.errorO).replace(/\s+/g, "") != "{}") {
-            console.log({ ...configEditor.errorO });
+        // remove empty cells
+        cells &&
+            Object.keys(cells).forEach((cell) => {
+                if ($.isEmptyObject(cells[cell])) {
+                    putAtObjectPath(
+                        configEditor.errorO,
+                        `cells.validCellIdentifiers.${cell}.emptyCell`,
+                        "empty"
+                    );
+                    delete cells[cell];
+                }
+            });
+
+        // make non empty cells explicitly editable when global edit is false
+        if (!editorVal.editable) {
+            cells &&
+                Object.keys(cells).forEach((cell) => {
+                    if (!cells[cell].editable) {
+                        putAtObjectPath(
+                            configEditor.errorO,
+                            `cells.validCellIdentifiers.${cell}.forceAddingTrue`,
+                            {
+                                cellProps: { ...cells[cell] },
+                                addedProp: { editable: true },
+                            }
+                        );
+                        cells[cell].editable = true;
+                    }
+                });
+        }
+
+        // print errors if any and recreate config object
+        if (!$.isEmptyObject(configEditor.errorO)) {
+            // explicitly add
             obj.setEditorValue(editorO, { ...editorVal });
-            const message = `Invalid input has been sanitized. See what was invalid in the devtools`;
+            console.log({ ...configEditor.errorO });
+            const message = `Some inputs have been sanatized.`;
             return createNotification(message);
         }
 
         configEditor.isValid = true;
         validatorElem.removeClass("error");
         configEditor.validInputData = editorVal;
-        obj.generateTable();
+        obj.generateInternalTableConfig();
+    };
+
+    this.determineColumnTypeSemblance = function (
+        { maxEnumValues, emailRegex, typeSemblance },
+        table
+    ) {
+        table[0].forEach((_, colIndex) => {
+            const dataSet = new Set();
+            const typeSet = new Set();
+            for (let i = 0; i < table.length; i++) {
+                const val = table[i][colIndex];
+                dataSet.add(val);
+
+                if (!isNaN(val)) typeSet.add("number");
+                else if (emailRegex.test(val)) typeSet.add("email");
+                else typeSet.add("text");
+            }
+            if (dataSet.size <= maxEnumValues)
+                typeSemblance[colIndex] = {
+                    value: "enum",
+                    values: Array.from(dataSet),
+                };
+            else if (typeSet.size == 1)
+                typeSemblance[colIndex] = {
+                    value: typeSet.values().next().value,
+                };
+            else typeSemblance[colIndex] = { value: "text" };
+        });
+    };
+
+    class EditableCell {
+        defaultInput = `<input class="uk-input"></input>`;
+
+        constructor(colNum, rowNum) {
+            const { fullState } = obj.configEditor;
+            this.colNum = colNum;
+            this.rowNum = rowNum;
+            this.cellMetadata = fullState[rowNum][colNum];
+            this.$tdHanlder = $(
+                `#tableContainer tbody tr:nth-child(${
+                    this.rowNum + 1
+                }) td:nth-child(${this.colNum + 1})`
+            );
+            this.$cellContainer = this.$tdHanlder.find(".cellCont");
+            this.$cellStore = this.$cellContainer.find(".cellStore");
+            this.processInput();
+        }
+
+        processInput() {
+            if (!this.midEdit) {
+                if (!Array.isArray(this.cellMetadata.type)) this.showInput();
+                else this.showDropdown();
+            }
+        }
+
+        showInput() {
+            // console.log(this);
+            // console.log("showInput");
+            // console.log(this.cellMetadata);
+
+            this.midEdit = true;
+            const $cellContainer = this.$cellContainer;
+            const $cellStore = this.$cellStore;
+            let originalVal = $cellStore.text().trim();
+            $cellStore
+                .attr("hidden", true)
+                .removeClass("uk-animation-slide-right-small");
+
+            const { type } = this.cellMetadata;
+            const { emailRegex } = obj.configEditor;
+            if (type == "number")
+                originalVal = !isNaN(originalVal) ? originalVal : "Number";
+            else if (type == "email")
+                originalVal = emailRegex.test(originalVal)
+                    ? originalVal
+                    : "local-part@domainName.com";
+
+            const $tempInput = $(this.defaultInput)
+                .attr("type", type)
+                .attr("placeholder", originalVal)
+                .addClass("uk-animation-fade");
+
+            if (!(type == "number" && originalVal == "Number"))
+                $tempInput.val(originalVal);
+
+            $cellContainer.append($tempInput);
+            $tempInput.trigger("focus");
+            $tempInput.on("focusout", () => {
+                $tempInput.removeClass("uk-animation-fade");
+                const inputVal = $tempInput.val();
+
+                const error = this.validateInput(inputVal);
+
+                if (error.length) {
+                    $tempInput.addClass("uk-form-danger uk-animation-shake");
+                    $tempInput.attr("uk-tooltip", error);
+                    setTimeout(() => {
+                        UIkit.tooltip($tempInput[0]).show();
+                        $tempInput.removeClass("uk-animation-shake");
+                    }, 500);
+                    return;
+                }
+
+                $tempInput.removeClass("uk-form-danger");
+                setTimeout(() => {
+                    $cellStore
+                        .text($tempInput.val())
+                        .attr("hidden", false)
+                        .addClass("uk-animation-slide-right-small");
+                    $tempInput.remove();
+
+                    this.midEdit = false;
+                }, 250);
+            });
+        }
+
+        showDropdown() {
+            // console.log(this);
+            // console.log("showEnum");
+            // console.log(this.cellMetadata);
+
+            this.clicked = true;
+            const $cellContainer = this.$cellContainer;
+            const $cellStore = this.$cellStore;
+            let originalVal = $cellStore.text().trim();
+            $cellStore.attr("hidden", true).removeClass("uk-animation-fade");
+
+            let ddState = [...this.cellMetadata.type];
+            if (ddState.includes(originalVal)) {
+                ddState = ddState
+                    .splice(ddState.indexOf(originalVal), 1)
+                    .concat(ddState);
+            }
+
+            var $tempSelect = $(
+                `<select class="uk-select uk-animation-fade"></select>`
+            ).append(ddState.map((opt) => `<option>${opt}</option>`));
+
+            $cellContainer.append($tempSelect);
+            $tempSelect.trigger("focus");
+            $tempSelect.on("focusout", () => {
+                $tempSelect.removeClass("uk-animation-fade");
+                setTimeout(() => {
+                    $cellStore
+                        .text($tempSelect.val())
+                        .attr("hidden", false)
+                        .addClass("uk-animation-fade");
+                    $tempSelect.remove();
+                    this.clicked = false;
+                }, 250);
+            });
+        }
+
+        validateInput = function (val) {
+            const { min, max, type } = this.cellMetadata;
+            const {
+                minInputLength,
+                maxInputLength,
+                emailRegex,
+            } = obj.configEditor;
+
+            if (type == "number") {
+                if (val == "")
+                    return `title: A <span class="error-text">numeric</span> input is required!`;
+                val = parseInt(val);
+                if (min == undefined && max == undefined) return "";
+                else if (min != undefined && max == undefined) {
+                    if (val < parseInt(min))
+                        return `title: The field expects a minimum value of <span class="error-text">${min}</span>`;
+                } else if (min == undefined && max != undefined) {
+                    if (val > parseInt(max))
+                        return `title: The field expects a maximum value of <span class="error-text">${max}</span>`;
+                } else if (val < parseInt(min) || val > parseInt(max))
+                    return `title: The field expects a value between <span class="error-text">${min}</span> and <span class="error-text">${max}</span>`;
+
+                return "";
+            } else if (type == "text") {
+                if (val.length < minInputLength)
+                    return `title: The text must be at least <span class="error-text">${minInputLength}</span> character long`;
+                else if (val.length > maxInputLength)
+                    return `title: The text can be no more than <span class="error-text">${maxInputLength}</span> characters`;
+                return "";
+            } else {
+                if (val.length < minInputLength)
+                    return `title: The email must be at least <span class="error-text">${minInputLength}</span> character long`;
+                else if (val.length > maxInputLength)
+                    return `title: The email address can be no more than <span class="error-text">${maxInputLength}</span> characters`;
+                else if (!emailRegex.test(val))
+                    return `title: Not a <span class="error-text">valid</span> email address!`;
+                return "";
+            }
+        };
+    }
+
+    this.generateInternalTableConfig = function () {
+        let { typeSemblance, fullState, validInputData } = obj.configEditor;
+        const tableData = [...obj.inputEditor.validInputData];
+        tableData.shift(); // remove headers
+        console.log({ tableData });
+        console.log({ validInputData });
+        obj.determineColumnTypeSemblance(obj.configEditor, tableData);
+        console.log({ typeSemblance });
+
+        // editable and markers are at the global level
+        const { editable, markers, cells } = validInputData;
+        obj.configEditor.fullState = tableData.map((_, rowIdx) => {
+            return tableData[rowIdx].map((col, colIdx) => {
+                let objToReturn = { value: col, editable, markers };
+                const correspondingCell = cells[`r${rowIdx}c${colIdx}`];
+                if (correspondingCell)
+                    objToReturn = { ...objToReturn, ...correspondingCell };
+                else if (editable) {
+                    objToReturn = {
+                        ...objToReturn,
+                        type:
+                            typeSemblance[colIdx].values ||
+                            typeSemblance[colIdx].value,
+                    };
+                }
+                return objToReturn;
+            });
+        });
+
+        this.generateTable();
     };
 
     this.generateTable = function () {
-        const data = { ...obj.inputEditor };
-        const config = { ...obj.configEditor };
-        const { editable, sortable, markers, cells } = config.validInputData;
+        const { isValid: isValidInputEditorData, validInputData } = {
+            ...obj.inputEditor,
+        };
+        const {
+            isValid: isValidConfigEditorData,
+            fullState,
+            validInputData: validInpuConfigData,
+        } = obj.configEditor;
+        const { editable, sortable, markers, cells } = validInpuConfigData;
 
-        if (!(data.isValid && config.isValid)) return;
+        if (!(isValidInputEditorData && isValidConfigEditorData)) return;
 
-        const tableData = [...data.validInputData];
-        const thead = tableData[0];
-        tableData.shift();
-        const tbody = tableData;
+        const thead = [...validInputData[0]];
 
         $("#tableContainer").empty().append(
             `<table class="tableSorter uk-table uk-table-hover uk-table-divider uk-table-small uk-table-middle">
@@ -693,19 +984,48 @@ const specify = new (function () {
 
         $("#tableContainer tr").append(thead.map((el) => `<th>${el}</th>`));
 
-        tbody.forEach((row) => {
-            const tr = $(`<tr></tr>`).append(
-                //class="uk-text-nowrap"
-                row.map((cell) => `<td>${cell}</td>`)
+        fullState.forEach((row) => {
+            const tr = $(`<tr class="minRowHeight"></tr>`).append(
+                row.map((cell) => {
+                    if (!cell.editable) return `<td>${cell.value}</td>`;
+                    else {
+                        return `<td class="uk-text-nowrap editable uk-width-small">
+                        <div class="cellCont editable-cell">
+                            <div class="cellStore">${cell.value}</div>
+                        </div>
+                    </td>`;
+                    }
+                })
             );
             $("#tableContainer tbody").append(tr);
         });
+
+        $("#tableContainer tbody td .editable-cell").on(
+            "dblclick",
+            function () {
+                var $this = $(this);
+                var col = $this.closest("td").index();
+                var row = $this.closest("tr").index();
+
+                console.log([col, row]);
+
+                if (!fullState[row][col].editCellInst)
+                    fullState[row][col].editCellInst = new EditableCell(
+                        col,
+                        row
+                    );
+                else fullState[row][col].editCellInst.processInput();
+            }
+        );
 
         if (sortable) {
             $("#tableContainer table").tableSort({
                 animation: "slide",
                 speed: 500,
             });
+
+            $("#tableContainer thead tr").css("display", "flex");
+            // $("#tableContainer table th").css("display", "inline-block");
 
             $(window).on(
                 "resize",
@@ -742,34 +1062,17 @@ const specify = new (function () {
 
         tableEditor.session.on(
             "change",
-            debounce(obj.validateDataInput, 500, {
+            debounce(obj.validateDataInput, 1000, {
                 leading: false,
                 trailing: true,
             })
         );
         configEditor.session.on(
             "change",
-            debounce(obj.validateConfigInput, 500, {
+            debounce(obj.validateConfigInput, 1000, {
                 leading: false,
                 trailing: true,
             })
         );
     };
-
-    function removeUncessaryListeners() {
-        const globalEditability = !!obj.tableConfig?.globalFeatures.editable;
-        $("table td").on("dblclick", function () {
-            const row = $(this).closest("tr").index();
-            const column = $(this).index();
-            console.log({ row, column });
-            obj.tableConfig?.inputs?.cells[`r${row}c${$(this).index()}`];
-            if (globalEditability) {
-            } else {
-                // if (cell.restrictedToValues?.length || cell.min || cell.max) {
-                // } else {
-                //   $();
-                // }
-            }
-        });
-    }
 })();

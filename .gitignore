@@ -1,9 +1,15 @@
 temp/
-bullshit.js
+
+bullshit*.js
 state.js
-table.html
 temp.js
+
+storage.html
+table.html
 index_*.html
 test.html
+
 *.docx
 *.pdf
+
+readme.MD

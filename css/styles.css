@@ -52,8 +52,8 @@ table.tableSorter th div.sortArrow div.sortArrowDescending {
 
 .ace_scrollbar::-webkit-scrollbar,
 .ace_scrollbar::-webkit-scrollbar:horizontal {
-    width: 0.4em;
-    height: 0.3em;
+    width: 0.6em;
+    height: 0.6em;
 }
 
 .ace_scrollbar::-webkit-scrollbar-thumb {
@@ -68,12 +68,12 @@ table.tableSorter th div.sortArrow div.sortArrowDescending {
 }
 
 .ace_scrollbar::-webkit-scrollbar-thumb {
-    background: #fff;
+    background: linear-gradient(to right, #1eb4fa, #1e87fe);
 }
 
 .ace_scrollbar::-webkit-scrollbar-thumb:horizontal {
     /* background-color: #fff; */
-    background: linear-gradient(to left, #1e87f0, #1e87f0);
+    background: linear-gradient(to top, #1eb4fa, #1e87fe);
     /* outline: 1px solid slategrey; */
 }
 
@@ -105,10 +105,49 @@ p {
 .error {
     background: #ff6d00;
 }
+.error-text {
+    color: #ff5a00;
+}
+
+.uk-form-danger,
+.uk-form-danger:focus {
+    border-width: 2px;
+    border-color: #ff6d00;
+    color: #ff5a00;
+}
 
 .overflow-x {
     overflow-y: hidden;
     overflow-x: auto;
+}
+
+.uk-input {
+    border-radius: 4px;
+    transition: 0.5s ease-in-out;
+}
+
+.uk-tooltip {
+    font-size: 14px;
+}
+
+table,
+tbody,
+tr,
+tr th,
+tr td,
+.editable,
+.cellCont {
+    transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+    /* transition: height cubic-bezier(0.25, 0.46, 0.45, 0.94); */
+}
+
+.cellCont {
+    position: relative;
+}
+
+.minRowHeight {
+    height: 65px !important;
+    /* display: inline-table; */
 }
 
 /* */
