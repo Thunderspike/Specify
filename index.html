@@ -31,37 +31,166 @@
     </nav>
 
 
-
     <div class="uk-margin-top uk-flex uk-flex-center">
-        <div class="uk-width-5-6 uk-section-xsmall uk-section-secondary uk-light">
-            <div class=" uk-container">
-                <h3 class="uk-text-lighter">table</h3>
-                <p>Generally used in administrative contexts, the table widget can be more lively than people
-                    give it
-                    credit for</p>
-                <p>The Input Editor expects an object with structure { data: [ header, ...rows ] } where
-                    header is an array of the header values, and ...rows are any number of arrays representing the
-                    data you want in your generated table</p>
-                <p>The Configuration Editor could be given an object that configures features of the table.
-                    See below for an example</p>
-                <p>Tip: Type "[]" to reset to a valid input object for the Input Editor on the left, and "{}" to reset
-                    to a valid configuration for Configuration editor on the right</p>
+        <div class="uk-width-5-6">
+            <div class="uk-child-width-1-2@m uk-grid-medium" uk-grid uk-height-match="target: > article">
+                <div>
+                    <article class="uk-article uk-margin-bottom">
+                        <p class="uk-text-lead">Input Editor</p>
+
+                        <p uk-height-match=".editorHeader">The Input Editor expects an object with structure {
+                            data: [ header,
+                            ...rows ] } where
+                            'header' is an array of the values in your table columns, and `...rows` are any number of
+                            arrays representing
+                            the
+                            data you want to initialize the table with</p>
+
+
+                        <p>Hint: To reset the input data to the original state, type <span
+                                class="uk-text-bolder">[]</span> in
+                            the editor</p>
+
+                        <a class="uk-button uk-button-text" href="#input-editor-modal" uk-toggle>Read more</a>
+
+                        <div id="input-editor-modal" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h2 class="uk-modal-title">Input Editor</h2>
+                                <p>Copy and paste the example below into the Input Editor for a table with 2 rows, and 4
+                                    columns</p>
+
+                                <div class="uk-card uk-card-default uk-card-body uk-width-3-4@xs">
+                                    { "data": [ ["First name", "Last name", "Age", "Email"], ["John", "Doe", "27",
+                                    "john@doe.gov"], ["Jane", "Doe", "20", "Jane@ip.io"] ] }
+                                </div>
+
+                                <p class="uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Ok</button>
+                                </p>
+
+
+                            </div>
+                        </div>
+                    </article>
+                </div>
+                <div>
+                    <article class="uk-article uk-margin-bottom">
+
+                        <p class="uk-text-lead">Data Configuration Editor</p>
+
+                        <p class="editorHeader">The Configuration Editor could be given an object {object} with
+                            properties like "editable",
+                            "sortable", and "cells" - on which you can provide pointers to row/column key value pairs
+                            in the form of "r0c0" ("r0c0" representing row 0 column 0) to specify more granular
+                            editability features.
+                        </p>
+
+                        <p>Hint: To reset the configuration object to its original state, type <span
+                                class="uk-text-bolder">{}</span> in
+                            the editor</p>
+
+
+                        <a class="uk-button uk-button-text" href="#config-editor-modal" uk-toggle>Read more</a>
+
+                        <div id="config-editor-modal" class="uk-modal-container" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body" uk-overflow-auto>
+                                <h2 class="uk-modal-title">Data Configuration Editor</h2>
+                                <p>The Data Configuration Editor currently acceps 3 top level keys: </p>
+
+                                <div class="uk-card uk-card-default uk-card-body uk-width-3-4@xs">
+                                    { "editable": boolean, "sortable": boolean, cells: { ... }}
+                                </div>
+
+                                <p>The top level "editable" key can is setting every cell to be editable. The apps
+                                    internal engine determines what "type" the cells will be </p>
+
+                                <p>"sortable" on the other hand toggles the abillity to sort the rows based on the
+                                    selected column. Click on a column in order to see this key in action</p>
+
+                                <p>"cells" expects an object each key is a pointer to the cell in question - in the
+                                    pattern "cYrX" where "cY" represents the column number, and "rX" represents the
+                                    row
+                                    number. X and Y are 0 based indices</p>
+
+                                <div class="uk-card uk-card-default uk-card-body uk-width-3-4@xs">
+                                    "r0c0": {
+                                    "type": "text"
+                                    },
+                                    "r1c1": {
+                                    "type": [
+                                    "flying",
+                                    "lost in space"
+                                    ]
+                                    },
+                                </div>
+
+                                <p>"r0c0" represents row 0 column 0, the top-right most cell. "type": "text" means
+                                    that
+                                    the cell can be edited as a "text" based input field.
+                                </p>
+                                <p>
+                                    "r1c1" on the other hand is the cell on the second column, on the second row.
+                                    Its
+                                    "type" is an array of values, representing an enum. This meeans that the editable
+                                    values of a cell will be provided from a dropdown
+                                </p>
+
+                                Double click on a cell to edit it!
+
+                                <p>
+                                    The possible types of a cell are
+                                </p>
+
+                                <div class="uk-card uk-card-default uk-card-body uk-width-3-4@xs">
+                                    "text", "number", "email" and [...customValues] (up to 3)
+                                </div>
+
+                                <p>For "number" types you can also provide "min" and "max" values</p>
+
+                                <div class="uk-card uk-card-default uk-card-body uk-width-3-4@xs">
+                                    "r0c3": {
+                                    "type": "number",
+                                    "min": 17,
+                                    "max": 100
+                                    }
+                                </div>
+
+                                <p>For "number" types you can also provide "min" and "max" values</p>
+
+                                <p class="uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Got
+                                        it</button>
+                                </p>
+
+                            </div>
+                        </div>
+                    </article>
+                </div>
             </div>
         </div>
     </div>
 
+
     <div class="uk-margin-top uk-flex uk-flex-center">
         <div class="uk-width-5-6">
-            <div class="uk-child-width-1-2@m uk-grid-medium" uk-grid>
+            <div class="uk-child-width-1-2@m uk-grid-medium" uk-grid uk-height-match="target: > .ace_content">
                 <div>
-                    <div class="uk-card uk-card-default uk-card-body p0">
-                        <div id="specifyDataEditor" class="editorDims"></div>
+                    <div class="uk-card p0">
+                        <div id="specifyDataEditor_wrapper" class="app_editor_wrapper">
+                            <div id="specifyDataEditor" class="editor editorDims"></div>
+                            <div id="specifyDataEditor_dragbar" class="app_editor_dragbar"></div>
+                        </div>
+
                         <span id="dataValidator" class="validator uk-badge  uk-animation-fade"></span>
                     </div>
                 </div>
                 <div>
-                    <div class="uk-card uk-card-default uk-card-body p0">
-                        <div id="specifyConfigEditor" class="editorDims"></div>
+                    <div class="uk-card p0">
+                        <div id="specifyConfigEditor_wrapper" class="app_editor_wrapper">
+                            <div id="specifyConfigEditor" class="editor editorDims"></div>
+                            <div id="specifyConfigEditor_dragbar" class="app_editor_dragbar"></div>
+                        </div>
+
                         <span id="configValidator" class="uk-badge validator uk-animation-fade"></span>
                     </div>
                 </div>

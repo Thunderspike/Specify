@@ -96,7 +96,7 @@ p {
 
 .validator {
     position: absolute;
-    z-index: 100;
+    z-index: 1000;
     top: 1.5em;
     right: 2.5em;
     transition: background-color 0.2s ease-in-out;
@@ -138,7 +138,6 @@ tr td,
 .editable,
 .cellCont {
     transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
-    /* transition: height cubic-bezier(0.25, 0.46, 0.45, 0.94); */
 }
 
 .cellCont {
@@ -147,7 +146,31 @@ tr td,
 
 .minRowHeight {
     height: 65px !important;
-    /* display: inline-table; */
+    min-height: 65px !important;
 }
 
-/* */
+.cell-inherit-height {
+    height: inherit;
+}
+
+/* .app_editor_wrapper {
+    background-color: #cccccc;
+    border-bottom: 4px solid white;
+    border-radius: 4px;
+} */
+
+.app_editor_dragbar {
+    background-color: #222222;
+    width: 80%;
+    height: 4px;
+    cursor: row-resize;
+    opacity: 1;
+
+    margin: 4px auto;
+
+    border-radius: 4px 4px 50px 50px;
+}
+
+button.uk-button {
+    border-radius: 4px;
+}

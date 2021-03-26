@@ -78,10 +78,10 @@ const specify = new (function () {
         },
     };
 
+    // prettier-ignore
     this.defaultConfigEditorData = {
         editable: true,
         sortable: true,
-        markers: true,
         // columns: {
         //     c2: {
         //         type: ["Female", "Male"],
@@ -94,17 +94,18 @@ const specify = new (function () {
         //     },
         // },
         cells: {
-            r0c2: {
+            r0c0: {
+                type: "text"
+            },
+            r0c1: {
+                type: ["flying", "lost in space"]
+            },
+            r0c3: {
                 type: "number",
                 min: 17,
-                max: 19,
+                max: 19
             },
-            r3c3: {
-                type: "number",
-                min: 17,
-                max: 19,
-            },
-        },
+        }
     };
 
     this.configEditor = {
@@ -853,7 +854,7 @@ const specify = new (function () {
             // console.log("showEnum");
             // console.log(this.cellMetadata);
 
-            this.clicked = true;
+            this.midEdit = true;
             const $cellContainer = this.$cellContainer;
             const $cellStore = this.$cellStore;
             let originalVal = $cellStore.text().trim();
@@ -880,7 +881,7 @@ const specify = new (function () {
                         .attr("hidden", false)
                         .addClass("uk-animation-fade");
                     $tempSelect.remove();
-                    this.clicked = false;
+                    this.midEdit = false;
                 }, 250);
             });
         }
@@ -982,14 +983,17 @@ const specify = new (function () {
                 </table>`
         );
 
-        $("#tableContainer tr").append(thead.map((el) => `<th>${el}</th>`));
+        $("#tableContainer tr").append(
+            thead.map((el) => `<th class="uk-table-shrink">${el}</th>`)
+        );
 
         fullState.forEach((row) => {
             const tr = $(`<tr class="minRowHeight"></tr>`).append(
                 row.map((cell) => {
-                    if (!cell.editable) return `<td>${cell.value}</td>`;
+                    if (!cell.editable)
+                        return `<td class="cell-inherit-height">${cell.value}</td>`;
                     else {
-                        return `<td class="uk-text-nowrap editable uk-width-small">
+                        return `<td class="uk-text-nowrap uk-width-small cell-inherit-height editable">
                         <div class="cellCont editable-cell">
                             <div class="cellStore">${cell.value}</div>
                         </div>
@@ -1046,9 +1050,11 @@ const specify = new (function () {
     this.init = function () {
         obj.inputEditor.editorO = editorFactory("specifyDataEditor");
         const tableEditor = obj.inputEditor.editorO;
+        makeAceEditorResizable(tableEditor);
 
         obj.configEditor.editorO = editorFactory("specifyConfigEditor");
         const configEditor = obj.configEditor.editorO;
+        makeAceEditorResizable(configEditor);
 
         obj.setEditorValue(tableEditor, {
             data: [...obj.defaultInputEditorData],
