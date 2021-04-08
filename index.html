@@ -30,6 +30,17 @@
         </div>
     </nav>
 
+    <div class="uk-margin-top uk-flex uk-flex-center">
+        <div class="uk-width-5-6">
+            <div class="uk-grid-medium">
+                <div class="uk-card uk-card-secondary uk-card-small uk-card-body">
+                    <h3 class="uk-card-title">An app that helps you create HTML tables by specifying a data set and
+                        configure that data on the editors below</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="uk-margin-top uk-flex uk-flex-center">
         <div class="uk-width-5-6">
@@ -41,7 +52,8 @@
                         <p uk-height-match=".editorHeader">The Input Editor expects an object with structure {
                             data: [ header,
                             ...rows ] } where
-                            'header' is an array of the values in your table columns, and `...rows` are any number of
+                            'header' is an array of the values in your table columns, and `...rows` are any number
+                            of
                             arrays representing the
                             data you want to specify the table with</p>
 
@@ -55,13 +67,15 @@
                         <div id="input-editor-modal" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
                                 <h2 class="uk-modal-title">Input Editor</h2>
-                                <p>Copy and paste the example below into the Input Editor for a table with 2 rows, and 4
+                                <p>Copy and paste the example below into the Input Editor for a table with 2 rows,
+                                    and 4
                                     columns</p>
 
                                 <div class="uk-card uk-card-default uk-card-body uk-width-3-4@xs uk-padding-small">
                                     {<br>
                                     &nbsp;&nbsp;&nbsp;&nbsp;"data": [<br>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["First name", "Last name", "Age",
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["First name", "Last name",
+                                    "Age",
                                     "Email"],<br>
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["John", "Doe",
                                     "27","john@doe.gov"],<br>
@@ -85,7 +99,8 @@
 
                         <p class="editorHeader">The Configuration Editor could be given an object {object} with
                             properties like "editable",
-                            "sortable", and "cells" - on which you can provide pointers to row/column key value pairs
+                            "sortable", and "cells" - on which you can provide pointers to row/column key value
+                            pairs
                             in the form of "r0c0" ("r0c0" representing row 0 column 0) to specify more granular
                             editability features.
                         </p>
@@ -111,18 +126,23 @@
                                 </div>
 
                                 <p>The top level "editable" key allows you to edit all table cells below. The apps
-                                    internal engine determines what "type" of editability the cell will allow by default
+                                    internal engine determines what "type" of editability the cell will allow by
+                                    default
                                     (without more specific configuration)</p>
 
                                 <p>"sortable" on the other hand toggles the abillity to sort the rows based on the
-                                    selected column. Set "sortable" to true and click on any column in order to see this
+                                    selected column. Set "sortable" to true and click on any column in order to see
+                                    this
                                     feature in action</p>
 
-                                <p>"cells" expects an object where each key is a pointer to the cell in question - the
-                                    keys must follow the pattern pattern "cYrX" where "cY" represents the column number,
+                                <p>"cells" expects an object where each key is a pointer to the cell in question -
+                                    the
+                                    keys must follow the pattern pattern "cYrX" where "cY" represents the column
+                                    number,
                                     and "rX" represents the row number. X and Y are 0 based indices</p>
 
-                                <p>Below is an acceptable configuration for a cell at row 0, column 0, and a second cell
+                                <p>Below is an acceptable configuration for a cell at row 0, column 0, and a second
+                                    cell
                                     at row 1 column 1</p>
 
                                 <div class="uk-card uk-card-default uk-card-body uk-width-3-4@xs uk-padding-small">
@@ -144,7 +164,8 @@
                                     "type": "text" means that the cell can be edited as a "text" based input field.
                                 </p>
                                 <p>
-                                    "r1c1" on the other hand is the cell on the second column, on the second row. <br>
+                                    "r1c1" on the other hand is the cell on the second column, on the second row.
+                                    <br>
                                     Its "type" is an array of values, representing an enum. This meeans that the
                                     editable values of a cell will be provided from a dropdown
                                 </p>
@@ -213,11 +234,13 @@
     </div>
 
 
-    <div class="uk-margin-top uk-flex uk-flex-center">
-        <div id="tableContainer" class="uk-width-5-6 overflow-x">
-            <table
-                class="tableSorter uk-table uk-table-hover uk-table-justify  uk-table-divider uk-table-small uk-table-middle">
-            </table>
+    <div class="uk-margin-top uk-margin-bottom uk-flex uk-flex-center ">
+        <div class="uk-width-5-6">
+            <div id="tableContainer" class="uk-card uk-card-default uk-card-body overflow-x">
+                <!-- <table
+                    class="tableSorter uk-table uk-table-hover uk-table-justify  uk-table-divider uk-table-small uk-table-middle">
+                </table> -->
+            </div>
         </div>
     </div>
 
