@@ -1,5 +1,7 @@
 temp/
 
+checkpoint*/
+
 bullshit*.js
 state.js
 temp.js

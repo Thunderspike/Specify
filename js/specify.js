@@ -82,28 +82,17 @@ const specify = new (function () {
     this.defaultConfigEditorData = {
         editable: true,
         sortable: true,
-        // columns: {
-        //     c2: {
-        //         type: ["Female", "Male"],
-        //     },
-        //     c3: {
-        //         type: "number",
-        //     },
-        //     c4: {
-        //         type: "email",
-        //     },
-        // },
         cells: {
             r0c0: {
-                type: "text"
+                type: "number",
+                min: 17,
+                max: 19
             },
             r0c1: {
                 type: ["flying", "lost in space"]
             },
             r0c3: {
-                type: "number",
-                min: 17,
-                max: 19
+                type: "text"
             },
         }
     };
@@ -267,6 +256,10 @@ const specify = new (function () {
         configEditor.typeSemblance = [];
         const { numRows, numCols } = { ...obj.inputEditor.dimensions };
 
+        // if (notificationElem && notificationElem._connected) {
+        //     notificationElem.close(false);
+        // }
+
         function dataTableInvalidNotification(
             message = "The JSON structure provided is invalid"
         ) {
@@ -419,14 +412,15 @@ const specify = new (function () {
                 key = key.toLowerCase();
                 if (allowedKeys.cells.test(key)) {
                     const cellDims = key.match(/\d+/g);
-                    if (cellDims[0] > numRows) {
+                    console.log({ cellDims, numRows, numCols });
+                    if (cellDims[0] >= numRows) {
                         putAtObjectPath(
                             configEditor.errorO,
                             `cells.invalidCellIdentifiers.${key}`,
                             ["invalidRowDims"]
                         );
                     }
-                    if (cellDims[1] > numCols) {
+                    if (cellDims[1] >= numCols) {
                         putAtObjectPath(
                             configEditor.errorO,
                             `cells.invalidCellIdentifiers.${key}`,
@@ -725,7 +719,7 @@ const specify = new (function () {
             // explicitly add
             obj.setEditorValue(editorO, { ...editorVal });
             console.log({ ...configEditor.errorO });
-            const message = `Some inputs have been sanatized.`;
+            const message = `Some configuration options have been changed by the system.`;
             return createNotification(message);
         }
 
@@ -931,10 +925,10 @@ const specify = new (function () {
         let { typeSemblance, fullState, validInputData } = obj.configEditor;
         const tableData = [...obj.inputEditor.validInputData];
         tableData.shift(); // remove headers
-        console.log({ tableData });
-        console.log({ validInputData });
+        // console.log({ tableData });
+        // console.log({ validInputData });
         obj.determineColumnTypeSemblance(obj.configEditor, tableData);
-        console.log({ typeSemblance });
+        // console.log({ typeSemblance });
 
         // editable and markers are at the global level
         const { editable, markers, cells } = validInputData;
@@ -1011,7 +1005,7 @@ const specify = new (function () {
                 var col = $this.closest("td").index();
                 var row = $this.closest("tr").index();
 
-                console.log([col, row]);
+                // console.log([col, row]);
 
                 if (!fullState[row][col].editCellInst)
                     fullState[row][col].editCellInst = new EditableCell(
