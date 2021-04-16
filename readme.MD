@@ -1,4 +1,4 @@
-#Specify
+# Specify
 
 Specify is an application build to explore usability principles through the lense of SWE 643 Use Interface Design & Development at George Mason
 
