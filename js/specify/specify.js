@@ -5,101 +5,13 @@ $(function () {
 const specify = new (function () {
     const obj = this;
 
-    // easy data
-    // ["First Name", "Last Name", "Gender", "Age", "Email"],
-    // ["Amanda", "Reed", "Female", 18, "e.reed@randatmail.com"],
-    // ["Sam", "Thomas", "Male", 27, "s.thomas@randatmail.com"],
-    // ["Naomi", "Myers", "Female", 19, "n.myers@randatmail.com"],
-    // ["Adrian", "Holmes", "Male", 23, "a.holmes@randatmail.com"],
-    this.defaultInputEditorData = [
-        [
-            "core_serial",
-            "status",
-            "original_launch",
-            "original_launch_unix",
-            "details",
-        ],
-        [
-            "Merlin2A",
-            "expended",
-            "2007-03-21T01:10:00.000Z",
-            1174439400,
-            "Successful first-stage burn and transition to second stage...",
-        ],
-        [
-            "Merlin1C",
-            "expended",
-            "2008-08-02T03:34:00.000Z",
-            1217648040,
-            "Residual stage-1 thrust led to collision between stage 1 and stage 2.",
-        ],
-        [
-            "Merlin2C",
-            "destroyed",
-            "2008-09-28T23:15:00.000Z",
-            1222643700,
-            "Initially scheduled for 23–25 Sep, carried dummy payload...",
-        ],
-        [
-            "Merlin3C",
-            "destroyed",
-            "2009-07-13T03:35:00.000Z",
-            1247456100,
-            "null",
-        ],
-        [
-            "B0003",
-            "expended",
-            "2010-06-04T18:45:00.000Z",
-            1275677100,
-            "Core expended on flight, no recovery effort. First flight of Falcon 9",
-        ],
-        [
-            "B0004",
-            "destroyed",
-            "2010-12-08T15:43:00.000Z",
-            1291822980,
-            "First flight of Dragon",
-        ],
-    ];
-
-    this.inputEditor = {
-        editorO: null,
-        isValid: true,
-        invalidJSONelem: null,
-        validatorElem: $("#dataValidator"),
-        notificationElem: null,
-        validInputData: null,
-        dimensions: {
-            maxRows: 30,
-            maxCols: 10,
-            numRows: obj.defaultInputEditorData.length - 1,
-            numCols: obj.defaultInputEditorData[0].length,
-        },
-    };
-
-    // prettier-ignore
-    this.defaultConfigEditorData = {
-        editable: true,
-        sortable: true,
-        cells: {
-            r0c0: {
-                type: "number",
-                min: 17,
-                max: 19
-            },
-            r0c1: {
-                type: ["flying", "lost in space"]
-            },
-            r0c3: {
-                type: "text"
-            },
-        }
-    };
+    this.defaultInputEditorData = defaultInputEditorData;
+    this.defaultConfigEditorData = defaultConfigEditorData;
 
     this.configEditor = {
         editorO: null,
         isValid: true,
+        isValidWithErrors: false,
         validatorElem: $("#configValidator"),
         defaultMarkerColors: ["#1e87f0", "#222", "#f8f8f8"],
         minInputLength: 0,
@@ -128,133 +40,28 @@ const specify = new (function () {
         validInputData: {},
     };
 
-    function editorFactory(id) {
-        const wrap = 60;
-        const editor = ace.edit(id, {
-            theme: "ace/theme/chaos",
-            mode: "ace/mode/json",
-            useWorker: true,
-            behavioursEnabled: "always",
-            fontSize: 16,
-            wrap,
-            printMargin: wrap,
-        });
-        editor.renderer.setScrollMargin(16, 16);
-
-        return editor;
-    }
-
-    this.setEditorValue = function (editor, value) {
-        editor.setValue(JSON.stringify(value, null, 2));
-    };
-
-    this.validateDataInput = function (delta) {
-        const inputEditor = obj.inputEditor;
-        const { editorO, validatorElem, dimensions } = inputEditor;
-        let { notificationElem } = inputEditor;
-        fullState = {};
-        inputEditor.validInputData = [];
-        dimensions.numRows = 0;
-        dimensions.numCols = 0;
-
-        function dataTableInvalidNotification(
-            message = "The JSON structure provided is invalid"
-        ) {
-            inputEditor.notificationElem = UIkit.notification({
-                message: `
-                <div class="uk-flex-inline uk-flex-middle">
-                    <span uk-icon="info"></span>
-                    <p class="uk-margin-small-left">
-                        ${message}
-                    </p>
-                </div>
-            `,
-                pos: "bottom-left",
-                timeout: 0,
-            });
-        }
-
-        function createNotification(message) {
-            if (notificationElem && notificationElem._connected) {
-                UIkit.util.once(document, "close", function (evt) {
-                    if (evt.detail[0] === notificationElem) {
-                        dataTableInvalidNotification(message);
-                    }
-                });
-                notificationElem.close(false);
-            } else dataTableInvalidNotification(message);
-        }
-
-        let editorVal = editorO.getValue();
-
-        if (editorVal.replace(/\s+/g, "") == "") {
-            inputEditor.isValid = false;
-            return validatorElem.addClass("error");
-        }
-
-        if (editorVal.replace(/\s+/g, "") == "[]")
-            return obj.setEditorValue(editorO, {
-                data: [...obj.defaultInputEditorData],
-            });
-
-        try {
-            editorVal = JSON.parse(editorVal);
-        } catch (e) {
-            inputEditor.isValid;
-            return validatorElem.addClass("error");
-        }
-
-        try {
-            dimensions.numRows = editorVal.data.length - 1;
-            dimensions.numCols = editorVal.data[0].length;
-
-            if (!dimensions.numRows) {
-                editorO.isValid = false;
-                inputEditor.validatorElem.addClass("error");
-                const invalidJSONMessage = "The table must have at least 1 row";
-                return createNotification(invalidJSONMessage);
-            }
-
-            if (
-                dimensions.numRows > dimensions.maxRows ||
-                dimensions.numCols > dimensions.maxCols
-            ) {
-                editorO.isValid = false;
-                inputEditor.validatorElem.addClass("error");
-                const invalidJSONMessage =
-                    "The table supports only up to 30 rows and 10 columns";
-                return createNotification(invalidJSONMessage);
-            }
-
-            editorVal.data.forEach((row) => {
-                if (row.length != dimensions.numCols) throw "";
-            });
-        } catch (e) {
-            editorO.isValid = false;
-            inputEditor.validatorElem.addClass("error");
-            const invalidJSONMessage = "Invalid table dimensions";
-            return createNotification(invalidJSONMessage);
-        }
-
-        inputEditor.validInputData = editorVal.data;
-
-        // clean leftover notifications if exist
-        if (notificationElem && notificationElem._connected)
-            notificationElem.close(false);
-        inputEditor.validatorElem.removeClass("error");
-        editorO.isValid = true;
-        obj.validateConfigInput();
-    };
-
-    this.validateConfigInput = function (delta) {
+    this.validateConfigInput = function () {
         const configEditor = obj.configEditor;
         const { editorO, allowedKeys, validatorElem } = configEditor;
         let { notificationElem } = configEditor;
+        obj.configEditor.isValidWithErrors = false;
+        obj.configEditor.lastCleansedInput = {};
         configEditor.fullState = {};
         configEditor.validInputData = {};
         configEditor.errorO = {};
         configEditor.typeSemblance = [];
-        const { numRows, numCols } = { ...obj.inputEditor.dimensions };
+        const { numRows, numCols } = { ...inputEditor.dimensions };
+
+        // configMessageCont
+        // configInvalidSyntax
+
+        const $configInvalidSyntax = $("#configInvalidSyntax");
+        const $submitConfig = $("#submitConfig");
+
+        $configInvalidSyntax.addClass("uk-animation-reverse");
+        $configInvalidSyntax.attr("hidden", "true");
+        $submitConfig.addClass("uk-animation-reverse");
+        $submitConfig.attr("hidden", "true");
 
         // if (notificationElem && notificationElem._connected) {
         //     notificationElem.close(false);
@@ -263,7 +70,7 @@ const specify = new (function () {
         function dataTableInvalidNotification(
             message = "The JSON structure provided is invalid"
         ) {
-            configEditor.notificationElem = UIkit.notification({
+            obj.configEditor.notificationElem = UIkit.notification({
                 message: `
                 <div class="uk-flex-inline uk-flex-middle">
                     <span uk-icon="info"></span>
@@ -277,7 +84,7 @@ const specify = new (function () {
             });
         }
 
-        function createNotification(message) {
+        function createGlobalNotification(message) {
             if (notificationElem && notificationElem._connected) {
                 UIkit.util.once(document, "close", function (evt) {
                     if (evt.detail[0] === notificationElem) {
@@ -288,9 +95,19 @@ const specify = new (function () {
             } else dataTableInvalidNotification(message);
         }
 
-        if (!obj.inputEditor.isValid) {
-            const message = `Please provide valid input for the Data Input Editor before configuring the data on the Data Configuration Editor`;
-            configEditor.isValid = false;
+        function createNotification(message) {
+            $submitConfig.addClass("uk-animation-reverse");
+            $submitConfig.attr("hidden", "true");
+            setEditorValue(editorO, { ...editorVal });
+            $configInvalidSyntax.find(".text").text(message);
+            $configInvalidSyntax
+                .removeClass("uk-animation-reverse")
+                .removeAttr("hidden");
+        }
+
+        if (!inputEditor.isValid) {
+            const message = `Data from Input Editor is marked as invalid`;
+            obj.configEditor.isValid = false;
             validatorElem.addClass("error");
             return createNotification(message);
         }
@@ -298,19 +115,21 @@ const specify = new (function () {
         let editorVal = editorO.getValue();
 
         if (editorVal.replace(/\s+/g, "") == "") {
-            configEditor.isValid = false;
-            return validatorElem.addClass("error");
+            const message = `Configuration Editor cannot be empty`;
+            obj.configEditor.isValid = false;
+            validatorElem.addClass("error");
+            return createNotification(message);
         }
 
         if (editorVal.replace(/\s+/g, "") == "{}")
-            return obj.setEditorValue(editorO, {
+            return setEditorValue(editorO, {
                 ...obj.defaultConfigEditorData,
             });
 
         try {
             editorVal = JSON.parse(editorVal);
         } catch (e) {
-            configEditor.isValid = false;
+            obj.configEditor.isValid = false;
             return validatorElem.addClass("error");
         }
 
@@ -319,7 +138,7 @@ const specify = new (function () {
         }).length;
         if (!minRequiredProps) {
             const message = `Configuration JSON does not specify minimally required attributes`;
-            configEditor.isValid = false;
+            obj.configEditor.isValid = false;
             validatorElem.addClass("error");
             return createNotification(message);
         }
@@ -412,7 +231,7 @@ const specify = new (function () {
                 key = key.toLowerCase();
                 if (allowedKeys.cells.test(key)) {
                     const cellDims = key.match(/\d+/g);
-                    console.log({ cellDims, numRows, numCols });
+                    // console.log({ cellDims, numRows, numCols });
                     if (cellDims[0] >= numRows) {
                         putAtObjectPath(
                             configEditor.errorO,
@@ -714,19 +533,86 @@ const specify = new (function () {
                 });
         }
 
-        // print errors if any and recreate config object
+        $configInvalidSyntax.addClass("uk-animation-reverse");
+        setTimeout((_) => $configInvalidSyntax.attr("hidden", "true"));
+
+        // print errors to console. store cleansed editorVal in lastCleasnedInput and show Warning Submit button
         if (!$.isEmptyObject(configEditor.errorO)) {
-            // explicitly add
-            obj.setEditorValue(editorO, { ...editorVal });
             console.log({ ...configEditor.errorO });
-            const message = `Some configuration options have been changed by the system.`;
-            return createNotification(message);
+            obj.configEditor.isValid = false;
+            obj.configEditor.isValidWithErrors = true;
+            obj.configEditor.lastCleansedInput = { ...editorVal };
+
+            const message = `Redundant or invalid Configuration input options will be cleansed by the system.`;
+
+            $submitConfig
+                .removeClass("okColor")
+                .addClass("warningColor")
+                .attr("uk-tooltip", message);
+            $submitConfig.find(".icon").attr("uk-icon", "warning");
+            $submitConfig
+                .removeClass("uk-animation-reverse")
+                .removeAttr("hidden");
+            return;
         }
 
-        configEditor.isValid = true;
+        $submitConfig
+            .removeClass("warningColor")
+            .addClass("okColor")
+            .removeAttr("uk-tooltip");
+        $submitConfig.find(".icon").attr("uk-icon", "check");
+        $submitConfig.removeClass("uk-animation-reverse").removeAttr("hidden");
+
+        obj.configEditor.isValid = true;
         validatorElem.removeClass("error");
-        configEditor.validInputData = editorVal;
-        obj.generateInternalTableConfig();
+        obj.configEditor.validInputData = editorVal;
+        // super scuff
+        if (obj.configEditor.loadTable) {
+            delete obj.configEditor.loadTable;
+            const message = `Redudant or invalid Configuration input options has been cleansed by the system`;
+            createGlobalNotification(message);
+            obj.createTable();
+        }
+    };
+
+    this.createTable = function () {
+        const { top } = $("#tableContainer")[0].getBoundingClientRect();
+
+        const {
+            isValid,
+            isValidWithErrors,
+            lastCleansedInput,
+            validInputData,
+        } = obj.configEditor;
+        // console.log({
+        //     isValid,
+        //     isValidWithErrors,
+        //     lastCleansedInput,
+        //     validInputData,
+        // });
+        // debugger;
+        if (!isValid && !isValidWithErrors) return;
+        else if (!isValid && isValidWithErrors) {
+            $("#submitConfig").addClass("uk-animation-reverse");
+            setTimeout((_) => $("#submitConfig").attr("hidden", true));
+            // const message = `Redudant or invalid Configuration input options has been cleansed by the system`;
+            // configGlobalNotification(message);
+            // super scuff
+            obj.configEditor.loadTable = true;
+
+            if ($("#tableContainer p"))
+                $("#tableContainer p").text("...generating");
+            return setEditorValue(obj.configEditor.editorO, {
+                ...lastCleansedInput,
+            });
+            // hope noone looks at this
+        } else if (isValid && !jQuery.isEmptyObject(validInputData)) {
+            obj.generateInternalTableConfig();
+            setTimeout(
+                (_) => window.scrollTo({ top, behavior: "smooth" }),
+                200
+            );
+        }
     };
 
     this.determineColumnTypeSemblance = function (
@@ -776,10 +662,8 @@ const specify = new (function () {
         }
 
         processInput() {
-            if (!this.midEdit) {
-                if (!Array.isArray(this.cellMetadata.type)) this.showInput();
-                else this.showDropdown();
-            }
+            if (!Array.isArray(this.cellMetadata.type)) this.showInput();
+            else this.showDropdown();
         }
 
         showInput() {
@@ -831,15 +715,15 @@ const specify = new (function () {
                 }
 
                 $tempInput.removeClass("uk-form-danger");
-                setTimeout(() => {
-                    $cellStore
-                        .text($tempInput.val())
-                        .attr("hidden", false)
-                        .addClass("uk-animation-slide-right-small");
-                    $tempInput.remove();
+                // setTimeout(() => {
+                //     $cellStore
+                //         .text($tempInput.val())
+                //         .attr("hidden", false)
+                //         .addClass("uk-animation-slide-right-small");
+                //     $tempInput.remove();
 
-                    this.midEdit = false;
-                }, 250);
+                //     this.midEdit = false;
+                // }, 250);
             });
         }
 
@@ -866,18 +750,18 @@ const specify = new (function () {
             ).append(ddState.map((opt) => `<option>${opt}</option>`));
 
             $cellContainer.append($tempSelect);
-            $tempSelect.trigger("focus");
-            $tempSelect.on("focusout", () => {
-                $tempSelect.removeClass("uk-animation-fade");
-                setTimeout(() => {
-                    $cellStore
-                        .text($tempSelect.val())
-                        .attr("hidden", false)
-                        .addClass("uk-animation-fade");
-                    $tempSelect.remove();
-                    this.midEdit = false;
-                }, 250);
-            });
+            // $tempSelect.trigger("focus");
+            // $tempSelect.on("focusout", () => {
+            //     $tempSelect.removeClass("uk-animation-fade");
+            //     setTimeout(() => {
+            //         $cellStore
+            //             .text($tempSelect.val())
+            //             .attr("hidden", false)
+            //             .addClass("uk-animation-fade");
+            //         $tempSelect.remove();
+            //         this.midEdit = false;
+            //     }, 250);
+            // });
         }
 
         validateInput = function (val) {
@@ -923,7 +807,7 @@ const specify = new (function () {
 
     this.generateInternalTableConfig = function () {
         let { typeSemblance, fullState, validInputData } = obj.configEditor;
-        const tableData = [...obj.inputEditor.validInputData];
+        const tableData = [...inputEditor.validInputData];
         tableData.shift(); // remove headers
         // console.log({ tableData });
         // console.log({ validInputData });
@@ -946,6 +830,7 @@ const specify = new (function () {
                             typeSemblance[colIdx].value,
                     };
                 }
+                // console.log({ objToReturn });
                 return objToReturn;
             });
         });
@@ -955,7 +840,7 @@ const specify = new (function () {
 
     this.generateTable = function () {
         const { isValid: isValidInputEditorData, validInputData } = {
-            ...obj.inputEditor,
+            ...inputEditor,
         };
         const {
             isValid: isValidConfigEditorData,
@@ -998,23 +883,17 @@ const specify = new (function () {
             $("#tableContainer tbody").append(tr);
         });
 
-        $("#tableContainer tbody td .editable-cell").on(
-            "dblclick",
-            function () {
-                var $this = $(this);
-                var col = $this.closest("td").index();
-                var row = $this.closest("tr").index();
+        $("#tableContainer tbody td .editable-cell").each(function () {
+            var $this = $(this);
+            var col = $this.closest("td").index();
+            var row = $this.closest("tr").index();
 
-                // console.log([col, row]);
+            // console.log([col, row]);
 
-                if (!fullState[row][col].editCellInst)
-                    fullState[row][col].editCellInst = new EditableCell(
-                        col,
-                        row
-                    );
-                else fullState[row][col].editCellInst.processInput();
-            }
-        );
+            if (!fullState[row][col].editCellInst)
+                fullState[row][col].editCellInst = new EditableCell(col, row);
+            // else fullState[row][col].editCellInst.processInput();
+        });
 
         if (sortable) {
             $("#tableContainer table").tableSort({
@@ -1042,37 +921,38 @@ const specify = new (function () {
     };
 
     this.init = function () {
-        obj.inputEditor.editorO = editorFactory("specifyDataEditor");
-        const tableEditor = obj.inputEditor.editorO;
-        makeAceEditorResizable(tableEditor);
+        // obj.inputEditor.editorO = editorFactory("specifyDataEditor");
+        // const tableEditor = obj.inputEditor.editorO;
+        // makeAceEditorResizable(tableEditor);
 
         obj.configEditor.editorO = editorFactory("specifyConfigEditor");
         const configEditor = obj.configEditor.editorO;
         makeAceEditorResizable(configEditor);
 
-        obj.setEditorValue(tableEditor, {
-            data: [...obj.defaultInputEditorData],
-        });
-        tableEditor.clearSelection();
+        // setEditorValue(tableEditor, {
+        //     data: [...obj.defaultInputEditorData],
+        // });
+        // tableEditor.clearSelection();
 
-        obj.setEditorValue(configEditor, { ...obj.defaultConfigEditorData });
+        setEditorValue(configEditor, { ...obj.defaultConfigEditorData });
         configEditor.clearSelection();
 
-        obj.validateDataInput();
+        // tableEditor.session.on(
+        //     "change",
+        //     debounce(obj.validateDataInput, 1000, {
+        //         leading: false,
+        //         trailing: true,
+        //     })
+        // );
 
-        tableEditor.session.on(
-            "change",
-            debounce(obj.validateDataInput, 1000, {
-                leading: false,
-                trailing: true,
-            })
-        );
         configEditor.session.on(
             "change",
-            debounce(obj.validateConfigInput, 1000, {
+            debounce(this.validateConfigInput, 1000, {
                 leading: false,
                 trailing: true,
             })
         );
+
+        inputEditor.validateInput();
     };
 })();

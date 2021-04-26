@@ -4,16 +4,17 @@
 <head>
     <meta charset="utf-8">
     <title>Specify Table</title>
-    <link rel="icon" href="/images/arrow_edge.ico" />
+    <link rel="icon" href="./images/arrow_edge.ico" />
 
-    <link rel="stylesheet" href="/css/uikit/uikit.min.css" />
-    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="./css/uikit/uikit.css" />
+    <link rel="stylesheet" href="./css/specify/styles.css" />
+    <link rel="stylesheet" href="./css/specify/messageBorder.css">
     <!-- tSort deson't work with latest jquery -->
     <script src="https://code.jquery.com/jquery-2.2.4.js"></script>
-    <script src="/js/tsort.js"></script>
-    <script src="/js/uikit/uikit.min.js"></script>
-    <script src="/js/uikit/uikit-icons.js"></script>
-    <script src="/js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./js/specify/tsort.js"></script>
+    <script src="./js/uikit/uikit.min.js"></script>
+    <script src="./js/uikit/uikit-icons.js"></script>
+    <script src="./js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
 <body>
@@ -21,14 +22,31 @@
         <div class="uk-navbar-left">
             <ul class="uk-navbar-nav">
                 <div class="uk-tile uk-padding-small">
-                    <h1 class="uk-heading-small">
+                    <h1 class="uk-heading-small customAppBarHeader">
                         Specify
                         <span id="widgetTitle" class="uk-text-light">table</span>
                     </h1>
                 </div>
             </ul>
         </div>
+        <div class="uk-navbar-right">
+            <span uk-icon="icon: nut; ratio: 1.5" class="nutIcon uk-icon-link"></span>
+        </div>
     </nav>
+
+    <div id="offcanvas-push" uk-offcanvas="mode: push; overlay: true">
+        <div class="uk-offcanvas-bar">
+
+            <button class="uk-offcanvas-close" type="button" uk-close></button>
+
+            <h3>Title</h3>
+
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
+                ex ea commodo consequat.</p>
+
+        </div>
+    </div>
 
     <div class="uk-margin-top uk-flex uk-flex-center">
         <div class="uk-width-5-6">
@@ -62,7 +80,8 @@
                                 class="uk-text-bolder">[]</span> in
                             the editor</p>
 
-                        <a class="uk-button uk-button-text" href="#input-editor-modal" uk-toggle>Read more</a>
+                        <button class="uk-button uk-button-secondary" href="#input-editor-modal" uk-toggle>Read
+                            more</button>
 
                         <div id="input-editor-modal" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
@@ -110,7 +129,8 @@
                             the editor</p>
 
 
-                        <a class="uk-button uk-button-text" href="#config-editor-modal" uk-toggle>Read more</a>
+                        <button class="uk-button uk-button-secondary" href="#config-editor-modal" uk-toggle>Read
+                            more</button>
 
                         <div id="config-editor-modal" class="uk-modal-container" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body" uk-overflow-auto>
@@ -206,27 +226,85 @@
     </div>
 
 
-    <div class="uk-margin-top uk-flex uk-flex-center">
+    <div class="uk-flex uk-flex-center">
         <div class="uk-width-5-6">
             <div class="uk-child-width-1-2@m uk-grid-medium" uk-grid uk-height-match="target: > .ace_content">
                 <div>
+                    <!-- <div class="svg-messageWrapper">
+                        <svg height="56" width="618" style="border-radius: 4px;">
+                            <rect class="shape" height="56" width="618" rx="4" />
+                            
+                        </svg>
+                    </div> -->
+
+                    <div id="inputMessageCont" class="uk-position-relative uk-flex uk-flex-between editorActions">
+                        <div>
+                            <div id="inputInvalidSyntax" class="syntaxBox" hidden>
+                                <span uk-icon="warning" class="icon icon-pb2px"></span>
+                                <span class="text ml4px mr4px uk-animation-slide-bottom-medium">
+                                    The JSON structure provided is invalid.
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <button id="submitInput" class="uk-button uk-button-default editorButton okColor" hidden
+                                onclick="inputEditor.configureInput()">
+                                <span uk-icon="check" class="icon icon-pb2px"></span>
+                                <span class="text ml4px mr4px uk-animation-slide-bottom-medium">Submit</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="inputValidator" class="verifyCont"></div>
+
                     <div class="uk-card p0">
                         <div id="specifyDataEditor_wrapper" class="app_editor_wrapper">
                             <div id="specifyDataEditor" class="editor editorDims"></div>
                             <div id="specifyDataEditor_dragbar" class="app_editor_dragbar"></div>
                         </div>
 
-                        <span id="dataValidator" class="validator uk-badge uk-animation-fade"></span>
+                        <!-- <span id="dataValidator" class="validator uk-badge uk-animation-fade"></span> -->
                     </div>
                 </div>
                 <div>
                     <div class="uk-card p0">
-                        <div id="specifyConfigEditor_wrapper" class="app_editor_wrapper">
-                            <div id="specifyConfigEditor" class="editor editorDims"></div>
-                            <div id="specifyConfigEditor_dragbar" class="app_editor_dragbar"></div>
-                        </div>
+                        <div class="uk-dark specifyBorderRadius">
+                            <div id="configMessageCont" class="uk-flex uk-flex-between mb12px">
+                                <div>
+                                    <div id="configInvalidSyntax" class="syntaxBox uk-animation-slide-bottom-medium"
+                                        hidden>
+                                        <span uk-icon="warning" class="icon icon-pb2px"></span>
+                                        <span class="text ml4px mr4px uk-animation-slide-bottom-medium">The JSON
+                                            structure
+                                            provided
+                                            is invalid.</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button id="submitConfig" class="uk-button uk-button-default editorButton okColor"
+                                        hidden onclick="specify.createTable()">
+                                        <span uk-icon="check" class="icon icon-pb2px"></span>
+                                        <span
+                                            class="text ml4px mr4px uk-animation-slide-bottom-medium"></span>Submit</span>
+                                    </button>
+                                </div>
+                            </div>
 
-                        <span id="configValidator" class="uk-badge validator uk-animation-fade"></span>
+                            <div class="cellCont">
+                                <div class="app_editor_wrapper">
+                                    <div id="specifyConfigEditor" class="editor editorDims"></div>
+                                    <div id="specifyConfigEditor_dragbar" class="app_editor_dragbar"></div>
+                                </div>
+                                <span id="configValidator" class="uk-badge validator uk-animation-fade"></span>
+                            </div>
+
+                            <div id="configOverlayHandler"
+                                class="uk-overlay-default uk-position-cover uk-animation-slide-right-medium"
+                                uk-tooltip="Submit changes to Input Editor before proceeding">
+                                <div class="uk-position-center">
+                                    <span uk-icon="icon: ban; ratio: 2"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -237,6 +315,7 @@
     <div class="uk-margin-top uk-margin-bottom uk-flex uk-flex-center ">
         <div class="uk-width-5-6">
             <div id="tableContainer" class="uk-card uk-card-default uk-card-body overflow-x">
+                <p class="uk-position-center">Table is empty until Specified</p>
                 <!-- <table
                     class="tableSorter uk-table uk-table-hover uk-table-justify  uk-table-divider uk-table-small uk-table-middle">
                 </table> -->
@@ -244,8 +323,11 @@
         </div>
     </div>
 
-    <script src="/js/utils.js"></script>
-    <script src="/js/specify.js"></script>
+    <script src="./js/specify/editor.js"></script>
+    <script src="./js/specify/defaultData.js"></script>
+    <script src="./js/specify/utils.js"></script>
+    <script src="./js/specify/inputEditor.js"></script>
+    <script src="./js/specify/specify.js"></script>
 
 </body>
 

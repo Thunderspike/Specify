@@ -1,0 +1,58 @@
+.svg-messageWrapper {
+    /* width: 647; */
+    height: 57px;
+    /* margin: 0 auto; */
+    margin-bottom: 0.2em;
+}
+
+.shape {
+    border-radius: 4px;
+    stroke-dasharray: 336 1012;
+    stroke-dashoffset: 125%;
+    stroke-width: 8px;
+    fill: transparent;
+    stroke: var(--primary);
+    transition: stroke-width 0.5s cubic-bezier(0, 0.71, 1, 1.01),
+        stroke-dashoffset 1s ease-in-out, stroke-dasharray 1s ease-in-out;
+}
+
+.svg-messageWrapper:hover .shape {
+    stroke-width: 6px;
+    stroke-dashoffset: 0;
+    stroke-dasharray: 1348;
+}
+
+.verifyCont {
+    border-radius: 8px;
+    margin: 4px auto;
+    display: flex;
+    justify-content: center;
+    height: 4px;
+    width: 66%;
+    background-color: black;
+    -webkit-transition: width var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01),
+        background-color var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01);
+    -moz-transition: width var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01),
+        background-color var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01);
+    -o-transition: width var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01),
+        background-color var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01);
+    transition: width var(--uikit-animationDur) cubic-bezier(0, 0.71, 1, 1.01),
+        background-color var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01);
+}
+
+.okBorder {
+    width: 80%;
+    background-color: var(--primary);
+}
+
+.warningBorder {
+    width: 73%;
+    background-color: var(--warning-5);
+}
