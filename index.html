@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="./css/uikit/uikit.css" />
     <link rel="stylesheet" href="./css/specify/styles.css" />
-    <link rel="stylesheet" href="./css/specify/messageBorder.css">
+    <link rel="stylesheet" href="./css/specify/editorHeaders.css">
     <!-- tSort deson't work with latest jquery -->
     <script src="https://code.jquery.com/jquery-2.2.4.js"></script>
     <script src="./js/specify/tsort.js"></script>
@@ -230,14 +230,7 @@
         <div class="uk-width-5-6">
             <div class="uk-child-width-1-2@m uk-grid-medium" uk-grid uk-height-match="target: > .ace_content">
                 <div>
-                    <!-- <div class="svg-messageWrapper">
-                        <svg height="56" width="618" style="border-radius: 4px;">
-                            <rect class="shape" height="56" width="618" rx="4" />
-                            
-                        </svg>
-                    </div> -->
-
-                    <div id="inputMessageCont" class="uk-position-relative uk-flex uk-flex-between editorActions">
+                    <div id="inputMessageCont" class="uk-flex uk-flex-between editorActions">
                         <div>
                             <div id="inputInvalidSyntax" class="syntaxBox" hidden>
                                 <span uk-icon="warning" class="icon icon-pb2px"></span>
@@ -256,45 +249,38 @@
                     </div>
                     <div id="inputValidator" class="verifyCont"></div>
 
-                    <div class="uk-card p0">
-                        <div id="specifyDataEditor_wrapper" class="app_editor_wrapper">
-                            <div id="specifyDataEditor" class="editor editorDims"></div>
-                            <div id="specifyDataEditor_dragbar" class="app_editor_dragbar"></div>
-                        </div>
-
-                        <!-- <span id="dataValidator" class="validator uk-badge uk-animation-fade"></span> -->
+                    <div id="specifyDataEditor_wrapper" class="app_editor_wrapper">
+                        <div id="specifyDataEditor" class="editor editorDims"></div>
+                        <div id="specifyDataEditor_dragbar" class="app_editor_dragbar"></div>
                     </div>
                 </div>
                 <div>
                     <div class="uk-card p0">
                         <div class="uk-dark specifyBorderRadius">
-                            <div id="configMessageCont" class="uk-flex uk-flex-between mb12px">
+                            <div id="configMessageCont" class="uk-flex uk-flex-between editorActions">
                                 <div>
                                     <div id="configInvalidSyntax" class="syntaxBox uk-animation-slide-bottom-medium"
                                         hidden>
                                         <span uk-icon="warning" class="icon icon-pb2px"></span>
-                                        <span class="text ml4px mr4px uk-animation-slide-bottom-medium">The JSON
-                                            structure
-                                            provided
-                                            is invalid.</span>
+                                        <span class="text ml4px mr4px uk-animation-slide-bottom-medium">
+                                            The JSON structure provided is invalid.
+                                        </span>
                                     </div>
                                 </div>
                                 <div>
                                     <button id="submitConfig" class="uk-button uk-button-default editorButton okColor"
-                                        hidden onclick="specify.createTable()">
+                                        hidden onclick="configEditor.callCreateTable()">
                                         <span uk-icon="check" class="icon icon-pb2px"></span>
                                         <span
                                             class="text ml4px mr4px uk-animation-slide-bottom-medium"></span>Submit</span>
                                     </button>
                                 </div>
                             </div>
+                            <div id="configValidator" class="verifyCont"></div>
 
-                            <div class="cellCont">
-                                <div class="app_editor_wrapper">
-                                    <div id="specifyConfigEditor" class="editor editorDims"></div>
-                                    <div id="specifyConfigEditor_dragbar" class="app_editor_dragbar"></div>
-                                </div>
-                                <span id="configValidator" class="uk-badge validator uk-animation-fade"></span>
+                            <div class="app_editor_wrapper">
+                                <div id="specifyConfigEditor" class="editor editorDims"></div>
+                                <div id="specifyConfigEditor_dragbar" class="app_editor_dragbar"></div>
                             </div>
 
                             <div id="configOverlayHandler"
@@ -326,6 +312,7 @@
     <script src="./js/specify/editor.js"></script>
     <script src="./js/specify/defaultData.js"></script>
     <script src="./js/specify/utils.js"></script>
+    <script src="./js/specify/configEditor.js"></script>
     <script src="./js/specify/inputEditor.js"></script>
     <script src="./js/specify/specify.js"></script>
 

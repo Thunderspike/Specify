@@ -1,0 +1,83 @@
+.syntaxBox {
+    margin: 0;
+    overflow: visible;
+    font: inherit;
+    display: inline-block;
+    box-sizing: border-box;
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 0 1.5em;
+    line-height: 2.5em;
+    border: 2px solid #ff6f00;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 1px -1px,
+        rgba(0, 0, 0, 0.14) 0px 1px 1px 0px, rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
+    border-radius: var(--br);
+}
+
+.syntaxBox svg {
+    color: #ff6f00 !important;
+}
+
+.editorButton {
+    text-transform: initial;
+    padding: 0 1.5em;
+    line-height: 2.5em;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 1px -2px,
+        rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px;
+    transition: border var(--uikit-animationDur) ease-out,
+        border-color var(--uikit-animationDur) ease-out,
+        width var(--uikit-animationDur) ease-out;
+}
+
+.editorButton:hover {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 1px -1px,
+        rgba(0, 0, 0, 0.14) 0px 1px 1px 0px, rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
+}
+
+.okColor svg {
+    color: var(--primary);
+}
+
+.warningColor svg {
+    color: var(--warning-md-500);
+}
+
+.verifyCont {
+    border-radius: 8px;
+    margin: 4px auto;
+    display: flex;
+    justify-content: center;
+    height: 4px;
+    width: 66%;
+    background-color: black;
+    -webkit-transition: width var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01),
+        background-color var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01);
+    -moz-transition: width var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01),
+        background-color var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01);
+    -o-transition: width var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01),
+        background-color var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01);
+    transition: width var(--uikit-animationDur) cubic-bezier(0, 0.71, 1, 1.01),
+        background-color var(--uikit-animationDur)
+            cubic-bezier(0, 0.71, 1, 1.01);
+}
+
+.okBorder {
+    width: 80%;
+    background-color: var(--primary);
+}
+
+.warningBorder {
+    width: 76.6%;
+    background-color: var(--warning-md-500);
+}
+
+.invalidBorder {
+    width: 73%;
+    background-color: var(--danger-5);
+}

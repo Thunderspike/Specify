@@ -13,23 +13,29 @@
 
 class InputEditor {
     obj = this;
-    editorO = null;
-    isValid = true;
-    invalidJSONelem = null;
-    $invalid = $("#inputInvalidSyntax");
-    $valid = $("#submitInput");
-    $validator = $("#inputValidator");
-    okBorder = "okBorder";
-    warningBorder = "warningBorder";
-    animationClass = "uk-animation-slide-bottom-medium";
-    reverseAnimClass = "uk-animation-reverse";
-    notificationElem = null;
-    validInputData = null;
+    _editorO = null;
+    inputEditorState = {
+        isValid: true,
+        validInputData: null,
+    };
     dimensions = {
         maxRows: 30,
         maxCols: 10,
         numRows: defaultInputEditorData.length - 1,
         numCols: defaultInputEditorData[0].length,
+    };
+    domComponents = {
+        notificationElem: null,
+        $valid: $("#submitInput"),
+        $invalid: $("#inputInvalidSyntax"),
+        $validator: $("#inputValidator"),
+        $configOverlay: $("#configOverlayHandler"),
+        classes: {
+            okBorder: "okBorder",
+            warningBorder: "warningBorder",
+            animSlideBotMed: "uk-animation-slide-bottom-medium",
+            reverseAnim: "uk-animation-reverse",
+        },
     };
 
     // configures ace editor
@@ -42,6 +48,7 @@ class InputEditor {
         this.setEditorVal({ data: [...defaultInputEditorData] });
         editor.clearSelection();
 
+        // debouncer works to only consider editor value once the user stopps typing for a `deoubceTimer` amount of time
         editor.session.on(
             "change",
             debounce(this.validateInput, debounceTimer, {
@@ -60,7 +67,7 @@ class InputEditor {
     }
 
     UIKitNotification(message) {
-        this.notificationElem = UIkit.notification({
+        this.domComponents.notificationElem = UIkit.notification({
             message: `
             <div class="uk-flex-inline uk-flex-middle">
                 <span uk-icon="info"></span>
@@ -74,93 +81,112 @@ class InputEditor {
         });
     }
 
+    closeGlobalNotification() {
+        const notificationElem = this.domComponents.notificationElem;
+
+        if (notificationElem && notificationElem._connected)
+            notificationElem.close(false);
+    }
+
     createGlobalNotification(message) {
-        if (this.notificationElem && this.notificationElem._connected) {
+        const notificationElem = this.domComponents.notificationElem;
+
+        if (notificationElem && notificationElem._connected) {
             UIkit.util.once(document, "close", function (evt) {
-                if (evt.detail[0] === this.notificationElem) {
+                if (evt.detail[0] === notificationElem) {
                     this.UIKitNotification(message);
                 }
             });
-            this.notificationElem.close(false);
+            notificationElem.close(false);
         } else this.UIKitNotification(message);
     }
 
     setValid(validity) {
-        this.isValid = !!validity;
-        // this.validationBadge(this.isValid);
+        this.inputEditorState.isValid = !!validity;
+
+        const $validator = this.domComponents.$validator,
+            { warningBorder, okBorder } = this.domComponents.classes;
 
         setTimeout(() => {
-            if (this.isValid)
-                this.$validator
-                    .removeClass(this.warningBorder)
-                    .addClass(this.okBorder);
-            else
-                this.$validator
-                    .removeClass(this.okBorder)
-                    .addClass(this.warningBorder);
+            if (this.inputEditorState.isValid)
+                $validator.removeClass(warningBorder).addClass(okBorder);
+            else $validator.addClass(warningBorder).removeClass(okBorder);
         }, smallTimeout);
     }
 
     disableConfigEditor() {
-        $("#configOverlayHandler").removeClass("uk-animation-reverse");
+        const $configOverlay = this.domComponents.$configOverlay,
+            { reverseAnim } = this.domComponents.classes.reverseAnim;
+
+        $configOverlay.removeClass(reverseAnim);
         setTimeout((_) => {
-            $("#configOverlayHandler").removeAttr("hidden");
+            $configOverlay.removeAttr("hidden");
         }, hideTimeout);
     }
 
     hideInputHeaders() {
-        this.$validator
-            .removeClass(this.warningBorder)
-            .removeClass(this.okBorder);
-        const animationClass = this.animationClass,
-            reverseAnimClass = this.reverseAnimClass;
-        this.$valid.removeClass(animationClass);
-        this.$invalid.removeClass(animationClass);
+        const { $validator, $valid, $invalid, classes } = this.domComponents,
+            { okBorder, warningBorder, animSlideBotMed, reverseAnim } = classes;
+
+        $validator.removeClass(warningBorder).removeClass(okBorder);
+
+        $valid.removeClass(animSlideBotMed);
+        $invalid.removeClass(animSlideBotMed);
         setTimeout(() => {
-            this.$valid.addClass(`${animationClass} ${reverseAnimClass}`);
-            this.$invalid.addClass(`${animationClass} ${reverseAnimClass}`);
+            $valid.addClass(`${animSlideBotMed} ${reverseAnim}`);
+            $invalid.addClass(`${animSlideBotMed} ${reverseAnim}`);
         }, smallTimeout);
+
         setTimeout(() => {
-            this.$valid.attr("hidden", "true");
-            this.$invalid.attr("hidden", "true");
+            $valid.attr("hidden", "true");
+            $invalid.attr("hidden", "true");
         }, hideTimeout);
     }
 
     toggleHeader({ valid }) {
-        const animationClass = this.animationClass,
-            reverseAnimClass = this.reverseAnimClass,
-            toHide = valid ? `$invalid` : `$valid`,
-            toShow = valid ? `$valid` : `$invalid`;
+        const { domComponents } = this,
+            { $valid, $invalid, classes } = domComponents,
+            {
+                animSlideBotMed: animationClass,
+                reverseAnim: reverseAnimClass,
+            } = classes;
+
+        const toHide = valid ? $invalid : $valid,
+            toShow = valid ? $valid : $invalid;
 
         setTimeout(() => {
             // hide + disable submit button
-            this[toHide].removeClass(`${animationClass} ${reverseAnimClass}`);
+            toHide.removeClass(`${animationClass} ${reverseAnimClass}`);
             setTimeout(() => {
-                this[toHide].addClass(`${animationClass} ${reverseAnimClass}`);
+                toHide.addClass(`${animationClass} ${reverseAnimClass}`);
             }, smallTimeout);
-            setTimeout(() => this[toHide].attr("hidden", "true"), hideTimeout);
+            setTimeout(() => toHide.attr("hidden", "true"), hideTimeout);
 
             // show error message
-            this[toShow].removeClass(`${animationClass} ${reverseAnimClass}`);
+            toShow.removeClass(`${animationClass} ${reverseAnimClass}`);
             setTimeout(() => {
-                this[toShow].addClass(animationClass).removeAttr("hidden");
+                toShow.addClass(animationClass).removeAttr("hidden");
             }, smallTimeout);
         }, hideTimeout);
     }
 
     createInvalidNotification(message) {
-        this.$valid.attr("disabled", true);
-        this.$invalid.find(".text").text(message);
+        const { $valid, $invalid } = this.domComponents;
+
+        $valid.attr("disabled", true);
+        $invalid.find(".text").text(message);
         this.toggleHeader({ valid: false });
     }
 
     showValidInput() {
-        this.$valid.removeAttr("disabled");
+        const { $valid } = this.domComponents;
+
+        $valid.removeAttr("disabled");
         this.toggleHeader({ valid: true });
     }
 
     validateInput = () => {
-        this.validInputData = [];
+        this.inputEditorState.validInputData = [];
         this.dimensions.numRows = 0;
         this.dimensions.numCols = 0;
 
@@ -185,6 +211,8 @@ class InputEditor {
             this.dimensions.numRows = editorVal.data.length - 1;
             this.dimensions.numCols = editorVal.data[0].length;
 
+            const { maxRows, maxCols, numRows, numCols } = this.dimensions;
+
             if (!this.dimensions.numRows) {
                 this.setValid(false);
                 const invalidJSONMessage = "The table must have at least 1 row";
@@ -192,10 +220,7 @@ class InputEditor {
                 return this.createInvalidNotification(invalidJSONMessage);
             }
 
-            if (
-                this.dimensions.numRows > this.dimensions.maxRows ||
-                this.dimensions.numCols > this.dimensions.maxCols
-            ) {
+            if (numRows > maxRows || numCols > maxCols) {
                 this.setValid(false);
                 const invalidJSONMessage =
                     "The table supports only up to 30 rows and 10 columns";
@@ -203,7 +228,7 @@ class InputEditor {
             }
 
             editorVal.data.forEach((row) => {
-                if (row.length != this.dimensions.numCols) throw "";
+                if (row.length != numCols) throw "";
             });
         } catch (e) {
             this.setValid(false);
@@ -211,25 +236,23 @@ class InputEditor {
             return this.createInvalidNotification(invalidJSONMessage);
         }
 
-        this.validInputData = editorVal.data;
+        this.inputEditorState.validInputData = editorVal.data;
 
         // clean leftover notifications if exist
-        if (this.notificationElem && this.notificationElem._connected)
-            this.notificationElem.close(false);
+        this.closeGlobalNotification();
         this.setValid(true);
 
         this.showValidInput();
     };
 
     configureInput() {
-        if (!this.isValid) return;
+        if (!this.inputEditorState.isValid) return;
         $("#configOverlayHandler").addClass("uk-animation-reverse");
         setTimeout((_) => {
             $("#configOverlayHandler").attr("hidden", true);
-            specify.validateConfigInput();
+            configEditor.validateConfigInput();
         }, hideTimeout);
     }
 }
 
 const inputEditor = new InputEditor("specifyDataEditor");
-// Object.freeze(inputEditor);
