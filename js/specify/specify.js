@@ -166,8 +166,8 @@ const specify = new (function () {
     this.generateInternalTableConfig = function () {
         let { typeSemblance, validConfigData } = configEditor.configEditorState;
 
-        console.log(`generateInternalTableConfig`);
-        console.log({ typeSemblance, validConfigData });
+        // console.log(`generateInternalTableConfig`);
+        // console.log({ typeSemblance, validConfigData });
 
         const tableData = [...inputEditor.inputEditorState.validInputData];
         tableData.shift(); // remove headers
@@ -178,8 +178,15 @@ const specify = new (function () {
         configEditor.configEditorState.fullState = tableData.map(
             (_, rowIdx) => {
                 return tableData[rowIdx].map((col, colIdx) => {
-                    let objToReturn = { value: col, editable, markers };
-                    const correspondingCell = cells[`r${rowIdx}c${colIdx}`];
+                    let objToReturn = { value: col, editable };
+                    if (markers == true)
+                        objToReturn.markers =
+                            configEditorConstants.defaultMarkerColors;
+                    else if (Array.isArray(markers))
+                        objToReturn.markers = [...markers];
+                    const correspondingCell = cells
+                        ? cells[`r${rowIdx}c${colIdx}`]
+                        : {};
                     if (correspondingCell)
                         objToReturn = { ...objToReturn, ...correspondingCell };
                     else if (editable) {
@@ -195,11 +202,11 @@ const specify = new (function () {
             }
         );
 
-        console.log({
-            fullStateInObj: configEditor.configEditorState.fullState,
-            typeSemblance,
-            typeSemblanceInObj: configEditor.configEditorState.typeSemblance,
-        });
+        // console.log({
+        //     fullStateInObj: configEditor.configEditorState.fullState,
+        //     typeSemblance,
+        //     typeSemblanceInObj: configEditor.configEditorState.typeSemblance,
+        // });
 
         this.generateTable();
     };
@@ -215,82 +222,168 @@ const specify = new (function () {
             fullState,
             validConfigData,
         } = configEditor.configEditorState;
-        const { editable, sortable, markers, cells } = validConfigData;
+        const { sortable } = validConfigData;
 
         if (!(isValidInputEditorData && isValidConfigEditorData)) return;
 
         const thead = [...validInputData[0]];
 
-        $("#tableContainer").empty().append(
-            `<table class="tableSorter uk-table uk-table-hover uk-table-divider uk-table-small uk-table-middle">
-                    <thead>
-                        <tr></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>`
+        const { $tableContainer, classes } = inputEditor.domComponents,
+            { animSlideRightMed, animSlideRightSmall, reverseAnim } = classes,
+            { top } = $tableContainer[0].getBoundingClientRect();
+
+        $tableContainer.removeClass(
+            `${animSlideRightMed} ${animSlideRightSmall} ${reverseAnim}`
         );
 
-        $("#tableContainer tr").append(
-            thead.map((el) => `<th class="uk-table-shrink">${el}</th>`)
-        );
+        setTimeout(() => {
+            $tableContainer.addClass(`${animSlideRightMed} ${reverseAnim}`);
+            setTimeout(() => {
+                $tableContainer.empty();
+                $tableContainer.removeClass(
+                    `${animSlideRightMed} ${animSlideRightSmall} ${reverseAnim}`
+                );
+                makeTable();
+            }, hideTimeout);
+        }, smallTimeout);
 
-        console.log({ fullState });
-        fullState.forEach((row) => {
-            const tr = $(`<tr class="minRowHeight"></tr>`).append(
-                row.map((cell) => {
-                    if (!cell.editable)
-                        return `<td class="cell-inherit-height">${cell.value}</td>`;
-                    else {
-                        return `<td class="uk-text-nowrap uk-width-small cell-inherit-height editable">
-                        <div class="cellCont editable-cell">
-                            <div class="cellStore">${cell.value}</div>
-                        </div>
-                    </td>`;
-                    }
-                })
-            );
-            $("#tableContainer tbody").append(tr);
-        });
+        function makeTable() {
+            const $table = $(`<table class="tableSorter uk-table uk-table-hover uk-table-divider uk-table-small mb6px">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody></tbody>
+        </table>`);
 
-        $("#tableContainer tbody td .editable-cell").each(function () {
-            var $this = $(this);
-            var col = $this.closest("td").index();
-            var row = $this.closest("tr").index();
+            $table
+                .find(`tr`)
+                .append(
+                    thead.map((el) => `<th class="uk-table-shrink">${el}</th>`)
+                );
 
-            // console.log([col, row]);
+            // element blueprints
+            const trBp = `<tr class="minRowHeight"></tr>`,
+                tdBp = `<td class="uk-width-small cell-inherit-height"></td>`,
+                colorWrapperBp = `<div class="cellColorWrapper"></div>`,
+                colorDropBtnBp = `<a class="cellColorBtn ripple-cell-light" uk-marker></a>`,
+                colorDropWrapperBp = `<div uk-drop="mode: click; pos: top-center; offset: 12"></div>`,
+                colorDropContBp = `<div class="uk-card uk-card-small uk-card-default specifyBorderRadius mui-shadow2 uk-flex uk-flex-around p12px"></div>`,
+                colorBp = `<a class="colorBtn mui-shadow1 ripple-cell"></a>`;
 
-            if (!fullState[row][col].editCellInst)
-                fullState[row][col].editCellInst = new EditableCell(col, row);
-            // else fullState[row][col].editCellInst.processInput();
-        });
+            fullState.forEach((row) => {
+                const $tr = $(trBp).append(
+                    row.map((cell) => {
+                        const { markers } = cell,
+                            $td = $(tdBp);
+                        // first markers
+                        if (markers) {
+                            const $colorWrapper = $(colorWrapperBp);
+                            const $colorDropBtn = $(colorDropBtnBp);
+                            const $colorDropWrapperBp = $(colorDropWrapperBp);
+                            const $colorDropContBp = $(colorDropContBp);
 
-        if (sortable) {
-            $("#tableContainer table").tableSort({
-                animation: "slide",
-                speed: 500,
+                            $td.append($colorWrapper);
+                            $colorWrapper.append($colorDropBtn);
+                            $colorWrapper.append($colorDropWrapperBp);
+                            $colorDropWrapperBp.append($colorDropContBp);
+
+                            const colors = markers.map((color) => {
+                                const $colorBp = $(colorBp);
+                                $colorBp.css("backgroundColor", color);
+                                $colorBp.on("click", function () {
+                                    $(this)
+                                        .closest(`.cellColorWrapper `)
+                                        .css("backgroundColor", color);
+                                });
+                                return $colorBp;
+                            });
+
+                            $colorDropContBp.append(colors);
+
+                            if (!cell.editable) {
+                                $colorWrapper.append(`<p>${cell.value}</p>`);
+                            } else {
+                                $colorWrapper.append(
+                                    $(`<div class="cellCont editable-cell">
+                        <div class="cellStore">${cell.value}</div>
+                    </div>`)
+                                );
+                            }
+                        } else {
+                            // then editability
+                            if (!cell.editable) {
+                                $td.append(cell.value);
+                            } else {
+                                $td.append(
+                                    $(`<div class="cellCont editable-cell">
+<div class="cellStore">${cell.value}</div>
+</div>`)
+                                );
+                            }
+                        }
+
+                        return $td;
+                    })
+                );
+                $table.find("tbody").append($tr);
             });
 
-            $("#tableContainer thead tr").css("display", "flex");
-            // $("#tableContainer table th").css("display", "inline-block");
+            $tableContainer.addClass(`${animSlideRightSmall}`).append($table);
 
-            $(window).on(
-                "resize",
-                debounce(
-                    function () {
-                        obj.generateTable();
-                    },
-                    500,
-                    {
-                        leading: false,
-                        trailing: true,
-                    }
-                )
-            );
+            setTimeout(() => {
+                try {
+                    window.scrollTo({ top: top - 72, behavior: "smooth" });
+                } catch (e) {}
+            }, shorterTimeout);
+
+            $table.find("tbody td .editable-cell").each(function () {
+                var $this = $(this);
+                var col = $this.closest("td").index();
+                var row = $this.closest("tr").index();
+
+                if (!fullState[row][col].editCellInst)
+                    fullState[row][col].editCellInst = new EditableCell(
+                        col,
+                        row
+                    );
+            });
+
+            Waves.attach(".ripple-cell", ["waves-circle"]);
+            Waves.attach(".ripple-cell-light", ["waves-circle", "waves-light"]);
+            Waves.init();
+
+            if (sortable) {
+                $("#tableContainer table").tableSort({
+                    animation: "slide",
+                    speed: 500,
+                });
+
+                $("#tableContainer thead tr").css("display", "flex");
+                // $("#tableContainer table th").css("display", "inline-block");
+
+                $(window).on(
+                    "resize",
+                    debounce(
+                        function () {
+                            obj.generateTable();
+                        },
+                        500,
+                        {
+                            leading: false,
+                            trailing: true,
+                        }
+                    )
+                );
+            }
         }
     };
 
     this.init = function () {
+        Waves.attach(".uk-icon-button.ripple", ["waves-circle"]);
+        Waves.attach(".uk-button.ripple", ["waves-button"]);
+        Waves.init();
+
         inputEditor.validateInput();
-        inputEditor.configureInput();
+        // inputEditor.configureInput();
     };
 })();

@@ -6,11 +6,14 @@
     <title>Specify Table</title>
     <link rel="icon" href="./images/arrow_edge.ico" />
 
+    <link rel="stylesheet" href="./css/waves/waves.css" />
     <link rel="stylesheet" href="./css/uikit/uikit.css" />
     <link rel="stylesheet" href="./css/specify/styles.css" />
     <link rel="stylesheet" href="./css/specify/editorHeaders.css">
     <!-- tSort deson't work with latest jquery -->
     <script src="https://code.jquery.com/jquery-2.2.4.js"></script>
+
+    <script src="./js/waves/waves.js"></script>
     <script src="./js/specify/tsort.js"></script>
     <script src="./js/uikit/uikit.min.js"></script>
     <script src="./js/uikit/uikit-icons.js"></script>
@@ -52,8 +55,8 @@
         <div class="uk-width-5-6">
             <div class="uk-grid-medium">
                 <div class="uk-card uk-card-secondary uk-card-small uk-card-body">
-                    <h3 class="uk-card-title">An app that helps you create HTML tables by specifying a data set and
-                        configure that data on the editors below</h3>
+                    <h3 class="uk-card-title">An app that helps you create HTML tables by specifying data inputs and
+                        configuring them with the editors below</h3>
                 </div>
             </div>
         </div>
@@ -63,25 +66,19 @@
     <div class="uk-margin-top uk-flex uk-flex-center">
         <div class="uk-width-5-6">
             <div class="uk-child-width-1-2@m uk-grid-medium" uk-grid uk-height-match="target: > article">
+
                 <div>
-                    <article class="uk-article uk-margin-bottom">
+                    <article class="uk-article">
                         <p class="uk-text-lead">Input Editor</p>
 
                         <p uk-height-match=".editorHeader">The Input Editor expects an object with structure {
                             data: [ header,
                             ...rows ] } where
-                            'header' is an array of the values in your table columns, and `...rows` are any number
+                            'header' is an array of the values representing the table columns, and `...rows` are any
+                            number
                             of
                             arrays representing the
-                            data you want to specify the table with</p>
-
-
-                        <p>Hint: To reset the input data to the original state, type <span
-                                class="uk-text-bolder">[]</span> in
-                            the editor</p>
-
-                        <button class="uk-button uk-button-secondary" href="#input-editor-modal" uk-toggle>Read
-                            more</button>
+                            data you want initialize the table with</p>
 
                         <div id="input-editor-modal" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
@@ -111,26 +108,21 @@
                         </div>
                     </article>
                 </div>
+
                 <div>
-                    <article class="uk-article uk-margin-bottom">
+                    <article class="uk-article">
 
-                        <p class="uk-text-lead">Data Configuration Editor</p>
+                        <p class=" uk-text-lead">Data Configuration Editor</p>
 
-                        <p class="editorHeader">The Configuration Editor could be given an object {object} with
-                            properties like "editable",
-                            "sortable", and "cells" - on which you can provide pointers to row/column key value
-                            pairs
-                            in the form of "r0c0" ("r0c0" representing row 0 column 0) to specify more granular
-                            editability features.
+                        <p class="editorHeader">The Configuration Editor can be given an object {object} with
+                            top level properties like "editable",
+                            "sortable" and "markers". Likewise, users can provide a value for the "cells" key - where
+                            they
+                            can specify
+                            provide pointers to row/column coordinates
+                            in the form of "r0c0" ("r0c0" representing row 0 column 0) to further provide more granular
+                            editability features for the given table cell.
                         </p>
-
-                        <p>Hint: To reset the configuration object to its original state, type <span
-                                class="uk-text-bolder">{}</span> in
-                            the editor</p>
-
-
-                        <button class="uk-button uk-button-secondary" href="#config-editor-modal" uk-toggle>Read
-                            more</button>
 
                         <div id="config-editor-modal" class="uk-modal-container" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body" uk-overflow-auto>
@@ -229,58 +221,84 @@
     <div class="uk-flex uk-flex-center">
         <div class="uk-width-5-6">
             <div class="uk-child-width-1-2@m uk-grid-medium" uk-grid uk-height-match="target: > .ace_content">
+                <!-- dom structure specific so that shadow animation can work -->
                 <div>
-                    <div id="inputMessageCont" class="uk-flex uk-flex-between editorActions">
-                        <div>
-                            <div id="inputInvalidSyntax" class="syntaxBox" hidden>
-                                <span uk-icon="warning" class="icon icon-pb2px"></span>
-                                <span class="text ml4px mr4px uk-animation-slide-bottom-medium">
-                                    The JSON structure provided is invalid.
-                                </span>
-                            </div>
-                        </div>
-                        <div>
-                            <button id="submitInput" class="uk-button uk-button-default editorButton okColor" hidden
-                                onclick="inputEditor.configureInput()">
-                                <span uk-icon="check" class="icon icon-pb2px"></span>
-                                <span class="text ml4px mr4px uk-animation-slide-bottom-medium">Submit</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="inputValidator" class="verifyCont"></div>
-
-                    <div id="specifyDataEditor_wrapper" class="app_editor_wrapper">
-                        <div id="specifyDataEditor" class="editor editorDims"></div>
-                        <div id="specifyDataEditor_dragbar" class="app_editor_dragbar"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="uk-card p0">
-                        <div class="uk-dark specifyBorderRadius">
-                            <div id="configMessageCont" class="uk-flex uk-flex-between editorActions">
-                                <div>
-                                    <div id="configInvalidSyntax" class="syntaxBox uk-animation-slide-bottom-medium"
-                                        hidden>
-                                        <span uk-icon="warning" class="icon icon-pb2px"></span>
-                                        <span class="text ml4px mr4px uk-animation-slide-bottom-medium">
-                                            The JSON structure provided is invalid.
-                                        </span>
+                    <div style="position: relative">
+                        <div id="inputEditorCard"
+                            class="editorCardPadding cardAnimShadow specifyBorderRadius uk-card-default uk-flex">
+                            <ul class="uk-iconnav uk-iconnav-vertical iconbar">
+                                <li><a class="uk-icon-button ripple" uk-icon="info" uk-tooltip="Input Editor API"
+                                        href="#input-editor-modal" uk-toggle></a></li>
+                                <li><a class="uk-icon-button ripple" uk-tooltip="Reset Input Editor data"
+                                        uk-icon="refresh" onclick="inputEditor.resetData()"></a></li>
+                            </ul>
+                            <div class="uk-width">
+                                <div id="inputMessageCont" class="uk-flex uk-flex-between editorActions">
+                                    <div>
+                                        <div id="inputInvalidSyntax" class="syntaxBox" hidden>
+                                            <span uk-icon="warning" class="icon icon-pb2px"></span>
+                                            <span class="text ml4px mr4px uk-animation-slide-bottom-medium">
+                                                The JSON structure provided is invalid.
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <button id="submitInput"
+                                            class="uk-button uk-button-default editorButton ripple  okColor " hidden
+                                            onclick="inputEditor.configureInput()">
+                                            <span uk-icon="check" class="icon icon-pb2px"></span>
+                                            <span
+                                                class="text ml4px mr4px uk-animation-slide-bottom-medium">Submit</span>
+                                        </button>
                                     </div>
                                 </div>
-                                <div>
-                                    <button id="submitConfig" class="uk-button uk-button-default editorButton okColor"
-                                        hidden onclick="configEditor.callCreateTable()">
-                                        <span uk-icon="check" class="icon icon-pb2px"></span>
-                                        <span
-                                            class="text ml4px mr4px uk-animation-slide-bottom-medium"></span>Submit</span>
-                                    </button>
+                                <div id="inputValidator" class="verifyCont"></div>
+
+                                <div id="specifyDataEditor_wrapper" class="app_editor_wrapper mb0_5em">
+                                    <div id="specifyDataEditor" class="editor editorDims"></div>
+                                    <div id="specifyDataEditor_dragbar" class="app_editor_dragbar"></div>
                                 </div>
                             </div>
-                            <div id="configValidator" class="verifyCont"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="position: relative">
+                    <div id="configEditorCard"
+                        class="uk-card editorCardPadding cardAnimShadow specifyBorderRadius uk-card-default uk-flex">
+                        <div class="uk-dark specifyBorderRadius uk-flex uk-width">
+                            <ul class="uk-iconnav uk-iconnav-vertical iconbar ">
+                                <li><a class="uk-icon-button ripple" uk-icon="info" uk-tooltip="Config Editor API"
+                                        href="#config-editor-modal" uk-toggle></a></li>
+                                <li><a class="uk-icon-button ripple" uk-tooltip="Reset Config Editor data"
+                                        uk-icon="refresh" onclick="configEditor.resetData()"></a></li>
+                            </ul>
+                            <div class="uk-width">
+                                <div id="configMessageCont" class="uk-flex uk-flex-between editorActions">
+                                    <div>
+                                        <div id="configInvalidSyntax" class="syntaxBox uk-animation-slide-bottom-medium"
+                                            hidden>
+                                            <span uk-icon="warning" class="icon icon-pb2px"></span>
+                                            <span class="text ml4px mr4px uk-animation-slide-bottom-medium">
+                                                The JSON structure provided is invalid.
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <button id="submitConfig"
+                                            class="uk-button uk-button-default editorButton ripple okColor" hidden
+                                            onclick="configEditor.callCreateTable()">
+                                            <span uk-icon="check" class="icon icon-pb2px"></span>
+                                            <span
+                                                class="text ml4px mr4px uk-animation-slide-bottom-medium"></span>Submit</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="configValidator" class="verifyCont"></div>
 
-                            <div class="app_editor_wrapper">
-                                <div id="specifyConfigEditor" class="editor editorDims"></div>
-                                <div id="specifyConfigEditor_dragbar" class="app_editor_dragbar"></div>
+                                <div class="app_editor_wrapper">
+                                    <div id="specifyConfigEditor" class="editor editorDims"></div>
+                                    <div id="specifyConfigEditor_dragbar" class="app_editor_dragbar"></div>
+                                </div>
                             </div>
 
                             <div id="configOverlayHandler"
@@ -300,12 +318,17 @@
 
     <div class="uk-margin-top uk-margin-bottom uk-flex uk-flex-center ">
         <div class="uk-width-5-6">
-            <div id="tableContainer" class="uk-card uk-card-default uk-card-body overflow-x">
-                <p class="uk-position-center">Table is empty until Specified</p>
-                <!-- <table
-                    class="tableSorter uk-table uk-table-hover uk-table-justify  uk-table-divider uk-table-small uk-table-middle">
-                </table> -->
+            <!-- -->
+            <div style="position: relative">
+                <div id="tableWrapper" class="cardAnimShadow uk-flex mb6px">
+                    <div id="tableContainer"
+                        class="uk-card uk-card-body specifyBorderRadius overflow-x mui-shadow1 uk-width">
+                        <p class="uk-position-center uk-margin-remove">Table is empty until Specified</p>
+                    </div>
+                </div>
             </div>
+
+
         </div>
     </div>
 

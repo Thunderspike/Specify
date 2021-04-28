@@ -26,15 +26,25 @@ class InputEditor {
     };
     domComponents = {
         notificationElem: null,
+        $inputEditorCard: $("#inputEditorCard"),
+        $configEditorCard: $("#configEditorCard"),
+        $tableWrapper: $("#tableWrapper"),
+        $tableContainer: $("#tableContainer"),
+        $emptyTable: $(
+            `<p class="uk-position-center uk-margin-remove">Table is empty until Specified</p>`
+        ),
         $valid: $("#submitInput"),
         $invalid: $("#inputInvalidSyntax"),
         $validator: $("#inputValidator"),
         $configOverlay: $("#configOverlayHandler"),
         classes: {
             okBorder: "okBorder",
-            warningBorder: "warningBorder",
+            invalidBorder: "invalidBorder",
+            animSlideRightSmall: "uk-animation-slide-right-small",
+            animSlideRightMed: "uk-animation-slide-right-medium",
             animSlideBotMed: "uk-animation-slide-bottom-medium",
             reverseAnim: "uk-animation-reverse",
+            show: "show",
         },
     };
 
@@ -65,6 +75,12 @@ class InputEditor {
     getEditorVal() {
         return this._editorO.getValue();
     }
+
+    resetData = () => {
+        this.setEditorVal({
+            data: [...defaultInputEditorData],
+        });
+    };
 
     UIKitNotification(message) {
         this.domComponents.notificationElem = UIkit.notification({
@@ -105,41 +121,95 @@ class InputEditor {
         this.inputEditorState.isValid = !!validity;
 
         const $validator = this.domComponents.$validator,
-            { warningBorder, okBorder } = this.domComponents.classes;
+            { invalidBorder, okBorder } = this.domComponents.classes;
 
         setTimeout(() => {
             if (this.inputEditorState.isValid)
-                $validator.removeClass(warningBorder).addClass(okBorder);
-            else $validator.addClass(warningBorder).removeClass(okBorder);
+                $validator.removeClass(invalidBorder).addClass(okBorder);
+            else $validator.addClass(invalidBorder).removeClass(okBorder);
         }, smallTimeout);
     }
 
     disableConfigEditor() {
-        const $configOverlay = this.domComponents.$configOverlay,
-            { reverseAnim } = this.domComponents.classes.reverseAnim;
+        const { $configOverlay, classes } = this.domComponents,
+            { reverseAnim, animSlideRightMed } = classes;
 
-        $configOverlay.removeClass(reverseAnim);
+        $configOverlay.remove(animSlideRightMed).removeClass(reverseAnim);
+
+        setTimeout(() => {
+            $configOverlay.addClass(animSlideRightMed);
+        }, smallTimeout);
         setTimeout((_) => {
             $configOverlay.removeAttr("hidden");
         }, hideTimeout);
     }
 
     hideInputHeaders() {
-        const { $validator, $valid, $invalid, classes } = this.domComponents,
-            { okBorder, warningBorder, animSlideBotMed, reverseAnim } = classes;
+        const {
+                $inputEditorCard,
+                $configEditorCard,
+                $tableWrapper,
+                $tableContainer,
+                $emptyTable,
+                $validator,
+                $valid,
+                $invalid,
+                classes,
+            } = this.domComponents,
+            {
+                okBorder,
+                invalidBorder,
+                animSlideRightSmall,
+                animSlideRightMed,
+                animSlideBotMed,
+                reverseAnim,
+                show,
+            } = classes;
 
-        $validator.removeClass(warningBorder).removeClass(okBorder);
+        let tableIsEmpty;
+        try {
+            tableIsEmpty = $(":first-child", $tableContainer).is("p");
+        } catch (e) {
+            tableIsEmpty = false;
+        }
+
+        this.disableConfigEditor();
+
+        // card shadows
+        $inputEditorCard.addClass(show);
+        $configEditorCard.removeClass(show);
+        $tableWrapper.removeClass(show);
+
+        // table container hide
+        if (!tableIsEmpty) {
+            $tableContainer
+                .removeClass(animSlideRightMed)
+                .removeClass(reverseAnim);
+        }
+
+        $validator.removeClass(invalidBorder).removeClass(okBorder);
 
         $valid.removeClass(animSlideBotMed);
         $invalid.removeClass(animSlideBotMed);
         setTimeout(() => {
             $valid.addClass(`${animSlideBotMed} ${reverseAnim}`);
             $invalid.addClass(`${animSlideBotMed} ${reverseAnim}`);
+            !tableIsEmpty &&
+                $tableContainer.addClass(`${animSlideRightMed} ${reverseAnim}`);
         }, smallTimeout);
 
         setTimeout(() => {
             $valid.attr("hidden", "true");
             $invalid.attr("hidden", "true");
+            if (!tableIsEmpty) {
+                $tableContainer.empty().append($emptyTable);
+                $tableContainer.removeClass(
+                    `${animSlideRightMed} ${reverseAnim}`
+                );
+                setTimeout(() => {
+                    $tableContainer.addClass(animSlideRightSmall);
+                });
+            }
         }, hideTimeout);
     }
 
@@ -196,15 +266,21 @@ class InputEditor {
 
         if (editorVal.replace(/\s+/g, "") == "") this.setValid(false);
 
-        if (editorVal.replace(/\s+/g, "") == "[]")
-            return this.setEditorVal({
-                data: [...defaultInputEditorData],
-            });
-
         try {
             editorVal = JSON.parse(editorVal);
         } catch (e) {
-            return this.setValid(false);
+            this.setValid(false);
+            const invalidJSONMessage = "Invalid JSON";
+            return this.createInvalidNotification(invalidJSONMessage);
+        }
+
+        try {
+            const inputKeys = Object.keys(editorVal);
+            if (inputKeys.length != 1 || inputKeys[0] != "data") throw "";
+        } catch (e) {
+            this.setValid(false);
+            const invalidJSONMessage = "Invalid Input Editor form";
+            return this.createInvalidNotification(invalidJSONMessage);
         }
 
         try {
@@ -216,7 +292,6 @@ class InputEditor {
             if (!this.dimensions.numRows) {
                 this.setValid(false);
                 const invalidJSONMessage = "The table must have at least 1 row";
-
                 return this.createInvalidNotification(invalidJSONMessage);
             }
 
@@ -246,10 +321,12 @@ class InputEditor {
     };
 
     configureInput() {
+        const { $configOverlay, classes } = this.domComponents,
+            { reverseAnim } = classes;
         if (!this.inputEditorState.isValid) return;
-        $("#configOverlayHandler").addClass("uk-animation-reverse");
+        $configOverlay.addClass(reverseAnim);
         setTimeout((_) => {
-            $("#configOverlayHandler").attr("hidden", true);
+            $configOverlay.attr("hidden", true);
             configEditor.validateConfigInput();
         }, hideTimeout);
     }

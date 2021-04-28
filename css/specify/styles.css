@@ -1,11 +1,13 @@
 :root {
     --white: #ffffff;
     --black: #000000;
+    --primary-light: #28a5f5;
     --primary: #1e87f0;
-    --warning-md-500: #ffde03;
+    --warning-md-500: #fdc251;
     --danger-5: #ff5a00;
     --danger-6: #ff6a00;
     --br: 4px;
+    --brCard: 0.5em;
 
     --uikit-animationDur: 200ms;
 }
@@ -75,7 +77,37 @@ table.tableSorter th div.sortArrow div.sortArrowDescending {
 
 .uk-notification-message p {
     max-width: 350px;
-    margin: 6px 10px 6px 0;
+    margin: 6px 1em 6px 0;
+}
+
+.uk-notification-message span svg {
+    color: var(--danger-6);
+}
+
+.uk-card-default {
+    box-shadow: rgb(0 0 0 / 20%) 0px 2px 1px -1px,
+        rgb(0 0 0 / 14%) 0px 1px 1px 0px, rgb(0 0 0 / 12%) 0px 1px 3px 0px;
+}
+
+.mui-shadow1 {
+    box-shadow: rgb(0 0 0 / 20%) 0px 2px 1px -1px,
+        rgb(0 0 0 / 14%) 0px 1px 1px 0px, rgb(0 0 0 / 12%) 0px 1px 3px 0px;
+}
+
+.mui-light1 {
+    box-shadow: rgb(255 255 255 / 20%) 0px 1px 1px -1px,
+        rgb(255 255 255 / 14%) 0px 2px 1px 0px,
+        rgb(255 255 255 / 12%) 0px 3px 1px 0px;
+}
+
+.mui-shadow2 {
+    box-shadow: rgb(0 0 0 / 20%) 0px 3px 1px -2px,
+        rgb(0 0 0 / 14%) 0px 2px 2px 0px, rgb(0 0 0 / 12%) 0px 1px 5px 0px;
+}
+
+.mui-shadow3 {
+    box-shadow: rgb(0 0 0 / 20%) 0px 3px 3px -2px,
+        rgb(0 0 0 / 14%) 0px 3px 4px 0px, rgb(0 0 0 / 12%) 0px 1px 8px 0px;
 }
 
 .editable-cell {
@@ -100,7 +132,7 @@ table.tableSorter th div.sortArrow div.sortArrowDescending {
 .ace_scrollbar::-webkit-scrollbar,
 .ace_scrollbar::-webkit-scrollbar:horizontal {
     width: 0.6em;
-    height: 0.6em;
+    height: 0.4em;
 }
 
 .ace_scrollbar::-webkit-scrollbar-thumb {
@@ -108,9 +140,6 @@ table.tableSorter th div.sortArrow div.sortArrowDescending {
 }
 
 .ace_scrollbar::-webkit-scrollbar-track {
-    /* background: #1e87f0; */
-    /* background: #fff; */
-    /* margin-left: 2px; */
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 1);
 }
 
@@ -192,12 +221,14 @@ tr td,
 }
 
 .minRowHeight {
+    /* height: fit-content; */
+    /* max-height: 65px !important;
     height: 65px !important;
-    min-height: 65px !important;
+    min-height: 65px !important; */
 }
 
 .cell-inherit-height {
-    height: inherit;
+    /* height: inherit; */
 }
 
 /* .app_editor_wrapper {
@@ -223,11 +254,111 @@ button.uk-button {
 }
 
 .specifyBorderRadius {
-    border-radius: var(--br);
+    border-radius: var(--brCard);
+}
+
+.editorCardPadding {
+    padding: 0;
+    padding-top: 0.5em;
+    padding-right: 0.75em;
+    padding-bottom: 0.75em;
+}
+
+/* all of this not to animate shadows, but opacity instead */
+.cardAnimShadow::after {
+    display: block;
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--brCard);
+    /* box-shadow: rgb(0 0 0 / 20%) 0px 2px 1px -1px,
+        rgb(0 0 0 / 14%) 0px 1px 1px 0px, rgb(0 0 0 / 12%) 0px 1px 3px 0px; */
+    /* box-shadow: rgb(0 0 0 / 20%) 0px 3px 1px -2px,
+        rgb(0 0 0 / 14%) 0px 2px 2px 0px, rgb(0 0 0 / 12%) 0px 1px 5px 0px; */
+    box-shadow: rgb(0 0 0 / 20%) 0px 3px 3px -2px,
+        rgb(0 0 0 / 14%) 0px 3px 4px 0px, rgb(0 0 0 / 12%) 0px 1px 8px 0px;
+
+    opacity: 0;
+    transition: opacity var(--uikit-animationDur) ease-in-out;
+    margin-top: -0.5em;
+}
+
+#tableWrapper.cardAnimShadow::after {
+    margin-top: 0;
+}
+
+.cardAnimShadow.show::after {
+    opacity: 1;
+}
+
+.iconbar {
+    margin: 3.5em 0.35em 0 0.35em;
+}
+
+.icon-pb2px > svg {
+    padding-bottom: 2px;
+}
+
+.text {
+    color: rgb(51, 51, 51);
+}
+.uk-iconnav > * > a:hover,
+.uk-iconnav > * > a:focus {
+    color: var(--primary);
+}
+
+.uk-icon-button.ripple {
+    line-height: inherit;
+    font-size: inherit;
+    display: flex;
+}
+
+.uk-icon-button.ripple svg {
+    margin-top: -6%;
+}
+
+.cellColorWrapper {
+    box-sizing: border-box;
+    padding: 1em;
+    position: relative;
+    border-radius: 0.4em;
+
+    -webkit-transition: background-color var(--uikit-animationDur)
+        cubic-bezier(0, 0.71, 1, 1.01);
+    -moz-transition: background-color var(--uikit-animationDur)
+        cubic-bezier(0, 0.71, 1, 1.01);
+    -o-transition: background-color var(--uikit-animationDur)
+        cubic-bezier(0, 0.71, 1, 1.01);
+    transition: background-color var(--uikit-animationDur)
+        cubic-bezier(0, 0.71, 1, 1.01);
+}
+
+table p {
+    color: var(--black);
+}
+
+.cellColorBtn {
+    z-index: 1;
+    position: absolute;
+    top: 0.3rem;
+    right: 0.3rem;
+}
+
+.colorBtn {
+    height: 30px;
+    width: 30px;
+    margin-left: 5px;
+    border-radius: 50%;
 }
 
 .uk-position-cover {
     z-index: 1000;
+}
+
+.p12px {
+    padding: 12px;
 }
 
 .pb2px {
@@ -242,6 +373,10 @@ button.uk-button {
     margin-bottom: 6px;
 }
 
+.mb0_5em {
+    margin-bottom: 0.5em;
+}
+
 .mb12px {
     margin-bottom: 12px;
 }
@@ -253,14 +388,3 @@ button.uk-button {
 .ml4px {
     margin-left: 4px;
 }
-
-.icon-pb2px > svg {
-    padding-bottom: 2px;
-}
-
-.text {
-    color: rgb(51, 51, 51);
-}
-
-/* 
- */

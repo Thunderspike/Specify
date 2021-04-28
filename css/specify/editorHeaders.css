@@ -22,14 +22,13 @@
     text-transform: initial;
     padding: 0 1.5em;
     line-height: 2.5em;
+    border-width: 0px;
     box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 1px -2px,
         rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px;
-    transition: border var(--uikit-animationDur) ease-out,
-        border-color var(--uikit-animationDur) ease-out,
-        width var(--uikit-animationDur) ease-out;
 }
 
 .editorButton:hover {
+    border-width: 0.01px;
     box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 1px -1px,
         rgba(0, 0, 0, 0.14) 0px 1px 1px 0px, rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
 }
@@ -38,8 +37,72 @@
     color: var(--primary);
 }
 
+.okColor.waves-effect .waves-ripple {
+    background: rgba(130, 177, 255, 0.2);
+    background: -webkit-radial-gradient(
+        rgba(130, 177, 255, 0.2) 0,
+        rgba(130, 177, 255, 0.3) 40%,
+        rgba(130, 177, 255, 0.4) 50%,
+        rgba(130, 177, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    background: -o-radial-gradient(
+        rgba(130, 177, 255, 0.2) 0,
+        rgba(130, 177, 255, 0.3) 40%,
+        rgba(130, 177, 255, 0.4) 50%,
+        rgba(130, 177, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    background: -moz-radial-gradient(
+        rgba(130, 177, 255, 0.2) 0,
+        rgba(130, 177, 255, 0.3) 40%,
+        rgba(130, 177, 255, 0.4) 50%,
+        rgba(130, 177, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    background: radial-gradient(
+        rgba(130, 177, 255, 0.2) 0,
+        rgba(130, 177, 255, 0.3) 40%,
+        rgba(130, 177, 255, 0.4) 50%,
+        rgba(130, 177, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0) 70%
+    );
+}
+
 .warningColor svg {
     color: var(--warning-md-500);
+}
+
+.warningColor.waves-effect .waves-ripple {
+    background: rgba(130, 177, 255, 0.2);
+    background: -webkit-radial-gradient(
+        rgba(253, 216, 53, 0.2) 0,
+        rgba(253, 216, 53, 0.3) 40%,
+        rgba(253, 216, 53, 0.4) 50%,
+        rgba(253, 216, 53, 0.5) 60%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    background: -o-radial-gradient(
+        rgba(253, 216, 53, 0.2) 0,
+        rgba(253, 216, 53, 0.3) 40%,
+        rgba(253, 216, 53, 0.4) 50%,
+        rgba(253, 216, 53, 0.5) 60%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    background: -moz-radial-gradient(
+        rgba(253, 216, 53, 0.2) 0,
+        rgba(253, 216, 53, 0.3) 40%,
+        rgba(253, 216, 53, 0.4) 50%,
+        rgba(253, 216, 53, 0.5) 60%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    background: radial-gradient(
+        rgba(253, 216, 53, 0.2) 0,
+        rgba(253, 216, 53, 0.3) 40%,
+        rgba(253, 216, 53, 0.4) 50%,
+        rgba(253, 216, 53, 0.5) 60%,
+        rgba(255, 255, 255, 0) 70%
+    );
 }
 
 .verifyCont {

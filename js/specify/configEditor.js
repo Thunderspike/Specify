@@ -1,5 +1,5 @@
 const configEditorConstants = {
-    defaultMarkerColors: ["#1e87f0", "#222", "#f8f8f8"],
+    defaultMarkerColors: ["#3700b3", "#FFDE03", "#FF0266"], // ["#1e87f0", "#222", "#f8f8f8"],
     minInputLength: 0,
     maxInputLength: 255,
     determineEnumOnSimilarValues: 3,
@@ -8,7 +8,7 @@ const configEditorConstants = {
     colorRegex: /^#([0-9A-F]{3}){1,2}$/i,
     allowedKeys: {
         globalFeatures: ["editable", "sortable", "markers"],
-        global: ["editable", "sortable", "cells"], // "markers", "columns",
+        global: ["editable", "sortable", "markers", "cells"], // "markers", "columns",
         // markers: ["boolean", "array"], // not curr needed with code
         // columns: /^c[0-9]+&/, // on pause for column feature
         // columnVals: ["type", "editable", "markers", "min", "max"],
@@ -18,7 +18,7 @@ const configEditorConstants = {
         cells: /^r[0-9]+c[0-9]+$/,
         // if editable == false, type/min/max dropped
         // if type == enum, min/max dropped
-        cellVals: ["editable", "type", "min", "max"],
+        cellVals: ["editable", "type", "min", "max", "markers"],
     },
 };
 Object.freeze(configEditorConstants);
@@ -36,6 +36,13 @@ class ConfigEditor {
     };
     domComponents = {
         notificationElem: null,
+        $inputEditorCard: $("#inputEditorCard"),
+        $configEditorCard: $("#configEditorCard"),
+        $tableWrapper: $("#tableWrapper"),
+        $tableContainer: $("#tableContainer"),
+        $emptyTable: $(
+            `<p class="uk-position-center uk-margin-remove">Table is empty until Specified</p>`
+        ),
         $valid: $("#submitConfig"),
         $invalid: $("#configInvalidSyntax"),
         $validator: $("#configValidator"),
@@ -45,8 +52,11 @@ class ConfigEditor {
             okBorder: "okBorder",
             warningBorder: "warningBorder",
             invalidBorder: "invalidBorder",
+            animSlideRightSmall: "uk-animation-slide-right-small",
+            animSlideRightMed: "uk-animation-slide-right-medium",
             animSlideBotMed: "uk-animation-slide-bottom-medium",
             reverseAnim: "uk-animation-reverse",
+            show: "show",
         },
     };
 
@@ -57,6 +67,12 @@ class ConfigEditor {
     getEditorVal() {
         return this._editorO.getValue();
     }
+
+    resetData = () => {
+        this.setEditorVal({
+            ...defaultConfigEditorData,
+        });
+    };
 
     UIKitNotification(message = "The JSON structure provided is invalid") {
         this.domComponents.notificationElem = UIkit.notification({
@@ -125,15 +141,47 @@ class ConfigEditor {
 
     /* Message display functions */
     hideConfigHeaders() {
-        const { $validator, $valid, $invalid, classes } = this.domComponents,
+        const {
+                $inputEditorCard,
+                $configEditorCard,
+                $tableWrapper,
+                $tableContainer,
+                $emptyTable,
+                $validator,
+                $valid,
+                $invalid,
+                classes,
+            } = this.domComponents,
             {
                 warningColor,
                 okBorder,
                 warningBorder,
                 invalidBorder,
+                animSlideRightSmall,
+                animSlideRightMed,
                 animSlideBotMed,
                 reverseAnim,
+                show,
             } = classes;
+
+        let tableIsEmpty;
+        try {
+            tableIsEmpty = $(":first-child", $tableContainer).is("p");
+        } catch (e) {
+            tableIsEmpty = false;
+        }
+
+        // card shadows
+        $inputEditorCard.removeClass(show);
+        $configEditorCard.addClass(show);
+        $tableWrapper.removeClass(show);
+
+        // table container hide
+        if (!tableIsEmpty) {
+            $tableContainer
+                .removeClass(animSlideRightMed)
+                .removeClass(reverseAnim);
+        }
 
         $validator
             .removeClass(okBorder)
@@ -152,11 +200,22 @@ class ConfigEditor {
         setTimeout(() => {
             $valid.addClass(`${animSlideBotMed} ${reverseAnim}`);
             $invalid.addClass(`${animSlideBotMed} ${reverseAnim}`);
+            !tableIsEmpty &&
+                $tableContainer.addClass(`${animSlideRightMed} ${reverseAnim}`);
         }, smallTimeout);
 
         setTimeout(() => {
             $valid.attr("hidden", "true");
             $invalid.attr("hidden", "true");
+            if (!tableIsEmpty) {
+                $tableContainer.empty().append($emptyTable);
+                $tableContainer
+                    .removeClass(animSlideRightMed)
+                    .removeClass(reverseAnim);
+                setTimeout(() => {
+                    $tableContainer.addClass(animSlideRightSmall);
+                });
+            }
         }, hideTimeout);
     }
 
@@ -314,21 +373,21 @@ class ConfigEditor {
                 // console.log({ cellDims, numRows, numCols });
                 if (cellDims[0] >= numRows) {
                     putAtObjectPath(
-                        configEditor.errorO,
+                        errorO,
                         `cells.invalidCellIdentifiers.${key}`,
                         ["invalidRowDims"]
                     );
                 }
                 if (cellDims[1] >= numCols) {
                     putAtObjectPath(
-                        configEditor.errorO,
+                        errorO,
                         `cells.invalidCellIdentifiers.${key}`,
                         ["invalidColDims"]
                     );
                 }
             } else
                 putAtObjectPath(
-                    configEditor.errorO,
+                    errorO,
                     `global.cells.invalidCellIdentifiers.${key}`,
                     ["invalidIdentifier"]
                 );
@@ -408,14 +467,23 @@ class ConfigEditor {
                             }
                         );
                         delete cells[cell];
-                    } else if (!cells[cell].editable) {
+                    } else if (
+                        !cells[cell].editable &&
+                        Object.keys(cells[cell]).length > 1
+                    ) {
                         // removed other proprties when cell not editable
+
+                        const retErrO = {
+                            removed: { ...cells[cell] },
+                            changed: { editable: false },
+                            original: { ...cells[cell] },
+                        };
+                        delete retErrO.removed.editable;
+
                         putAtObjectPath(
                             errorO,
                             `cells.validCellIdentifiers.${cell}.invalidValues`,
-                            {
-                                cellNonEditable: { ...cells[cell] },
-                            }
+                            retErrO
                         );
                         cells[cell] = { editable: false };
                     }
@@ -631,11 +699,6 @@ class ConfigEditor {
             return this.setValid(false, message);
         }
 
-        if (strippedEditorVal == "{}")
-            return this.setEditorVal({
-                ...defaultConfigEditorData,
-            });
-
         try {
             editorVal = JSON.parse(editorVal);
             if (!editorVal) throw "Configuration Editor cannot be empty";
@@ -690,12 +753,12 @@ class ConfigEditor {
 
         this.configEditorState.validConfigData = editorVal;
 
-        console.log({
-            validConfigData: this.configEditorState.validConfigData,
-        });
+        // console.log({
+        //     validConfigData: this.configEditorState.validConfigData,
+        // });
 
         if (!$.isEmptyObject(errorO)) {
-            console.log({ ...errorO });
+            console.log({ errorO });
             this.configEditorState.isValid = true;
             this.configEditorState.isValidWithErrors = true;
 
@@ -725,14 +788,21 @@ class ConfigEditor {
         this.showValidInput();
 
         if (reset) {
-            const message = `Redudant or invalid Configuration input options have been cleansed by the system`;
+            const message = `Redundant or invalid Configuration Input options have been cleansed by the system`;
             this.createGlobalNotification(message);
             this.callCreateTable();
         }
     };
 
     callCreateTable = () => {
-        const { top } = $("#tableContainer")[0].getBoundingClientRect(),
+        const {
+                $inputEditorCard,
+                $configEditorCard,
+                $tableWrapper,
+                $tableContainer,
+                classes,
+            } = this.domComponents,
+            { show } = classes,
             {
                 isValid,
                 isValidWithErrors,
@@ -744,11 +814,10 @@ class ConfigEditor {
         else if (isValid && isValidWithErrors)
             this.setEditorVal({ ...validConfigData });
         else if (isValid && !isValidWithErrors) {
+            $inputEditorCard.removeClass(show);
+            $configEditorCard.removeClass(show);
+            $tableWrapper.addClass(show);
             specify.generateInternalTableConfig();
-            // setTimeout(
-            //     (_) => window.scrollTo({ top, behavior: "smooth" }),
-            //     200
-            // );
         } else {
             throw "Impossible state";
         }
